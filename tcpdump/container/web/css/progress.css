@@ -1,0 +1,80 @@
+.progress-pie-chart {
+	width: 170px;
+	height: 170px;
+	border-radius: 50%;
+	background-color: #E5E5E5;
+	position: relative;
+	box-shadow: 0px 8px 60px #000;
+}
+.progress-pie-chart.gt-50 {
+	background: -webkit-linear-gradient(rgba(246,205,39,1), rgba(255,221,84,1)); /*Safari 5.1-6*/
+	background: -o-linear-gradient(rgba(246,205,39,1), rgba(255,221,84,1)); /*Opera 11.1-12*/
+	background: -moz-linear-gradient(rgba(246,205,39,1), rgba(255,221,84,1)); /*Fx 3.6-15*/
+	background: linear-gradient(rgba(246,205,39,1), rgba(255,221,84,1)); /*Standard*/
+}
+.ppc-progress {
+	content: "";
+	position: absolute;
+	border-radius: 50%;
+	left: calc(50% - 100px);
+	top: calc(50% - 100px);
+	width: 170px;
+	height: 170px;
+	clip: rect(0, 200px, 200px, 100px);
+}
+.ppc-progress .ppc-progress-fill {
+	content: "";
+	position: absolute;
+	border-radius: 50%;
+	left: calc(50% - 70px);
+	top: calc(50% - 70px);
+	width: 170px;
+	height: 170px;
+	clip: rect(0, 87px, 170px, 0);
+	transform: rotate(60deg);
+	background: -webkit-linear-gradient(rgba(246,205,39,1), rgba(255,221,84,1)); /*Safari 5.1-6*/
+	background: -o-linear-gradient(rgba(246,205,39,1), rgba(255,221,84,1)); /*Opera 11.1-12*/
+	background: -moz-linear-gradient(rgba(246,205,39,1), rgba(255,221,84,1)); /*Fx 3.6-15*/
+	background: linear-gradient(rgba(246,205,39,1), rgba(255,221,84,1)); /*Standard*/
+}
+.gt-50 .ppc-progress {
+	clip: rect(0, 100px, 200px, 0);
+}
+.gt-50 .ppc-progress .ppc-progress-fill {
+	clip: rect(0, 200px, 200px, 90px);
+	background: #E5E5E5;
+}
+.ppc-percents {
+	content: "";
+	position: absolute;
+	border-radius: 50%;
+	left: calc(50% - 80px/2);
+	top: calc(50% - 80px/2);
+	width: 80px;
+	height: 80px;
+	background: #4F4F4F;
+	text-align: center;
+	display: table;
+	box-shadow: 0px 10px 11px #222 inset;
+}
+.loading {
+	background-image: url(../images/712.GIF);
+	background-repeat: no-repeat;
+	background-position: center;
+	/*display:none;*/
+}
+.loaded {
+	background-image: url(../images/img_loaded.png);
+	background-repeat: no-repeat;
+	background-position: center;
+	display:none;
+}
+.pcc-percents-wrapper {
+	display: table-cell;
+	vertical-align: middle;
+}
+
+.progress-pie-chart {
+	margin: 50px auto 0;
+	margin-top: 20%;
+}

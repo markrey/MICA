@@ -1,0 +1,16 @@
+from rpc_call import rpc
+from credentials import getCredentials
+import helper
+
+PW="admin"
+USER="admin"
+
+ipv6 = helper.get_base_ipv6_address()
+r = rpc( "https://[" + ipv6 + "]/base_service/" )
+
+# get token from SSO service
+cred = getCredentials( USER, PW, 1.5 )
+auth_token = r.call( "get_auth_token", cred )[ "result" ][ 1 ]
+
+# put your desired RPC call here
+print( r.call( "reboot", [ auth_token ] ) )

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>WebAPI test</title>
+  <style type="text/css">
+  /* 見やすいように文字を大きく */
+  body,
+  input,
+  button {
+    font-size: 30px;
+  }
+  </style>
+</head>
+<body>
+  <h2>WebAPI</h2>
+  <h3>リクエスト</h3>
+  <!-- ユーザタイプを入力するテキストボックス -->
+  User Type:<input type="text" name="dataType" /><br>
+  <!-- 入力する値の項目 -->
+  <ul>
+    <li>a:Admin</li>
+    <li>o:Operator</li>
+    <li>g:Guest</li>
+    <li>e:Empty</li>
+  </ul>
+  <!-- ajax()を実行するボタン -->
+  <button data-btn-type="ajax">Data get!</button>
+  <br><br>
+  <h3>結果</h3>
+  <!-- 結果表示用のdivタグ -->
+  <div data-result="">未取得</div>
+  <script src="jquery.min.js"></script>
+  <script type="text/javascript" src="api.js"></script>
+  <!-- <script type="text/javascript" src="api2.js"></script> -->
+</body>
+</html>
+
+

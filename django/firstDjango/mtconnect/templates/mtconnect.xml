@@ -1,0 +1,16 @@
+{% load staticfiles %}
+<?xml version="1.0" encoding="UTF-8"?>
+<MTConnectDevices xmlns:m="urn:mtconnect.com:MTConnectDevices:1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:mtconnect.com:MTConnectDevices:1.1" xsi:schemaLocation="urn:mtconnect.com:MTConnectDevices:1.1 http://www.mtconnect.org/schemas/MTConnectDevices_1.1.xsd">
+<Header creationTime="2001-12-17T09:30:47Z" sender="localhost" version="1.2" bufferSize="131000" instanceId="1" />
+
+<Devices>
+<Device id="DMYA01" uuid="DMYA01" name="MISTLEVEL_SENSOR">
+  <Description>Mist Level Sensor</Description>
+  <DataItems>
+    <DataItem type="MISTLEVEL" id="mistlv" category="SAMPLE" name="mistlevel" units="g/L"/>
+    <DataItem type="TEMPERATURE" id="temp" category="SAMPLE" name="temperature" units="DEGREE"/>
+  </DataItems>
+</Device>
+</Devices>
+</MTConnectDevices>
+

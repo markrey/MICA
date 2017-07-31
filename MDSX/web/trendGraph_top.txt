@@ -1,0 +1,15 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+<HEAD>
+<title>Chart.js TEST</title>
+</HEAD>
+
+<body>
+  <div style="width: 100%">
+    <canvas id="chart" height="400" width="400"></canvas>
+  </div>
+
+  <script src="Chart.min.js"></script>
+  <!-- もしくは<script src="Chart.min.js"></script> -->
+  <script>
+  var lineChartData = {

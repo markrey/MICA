@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>こんにちは</title>
+</head>
+<body>
+    <p>こんにちは、
+        {% if name == '田中' %}
+            {{ name }} さん
+        {% else %}
+            {{ name }} くん
+        {% endif %}
+    </p>
+</body>
+</html>
+
