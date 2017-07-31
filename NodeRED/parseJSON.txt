@@ -1,0 +1,3 @@
+var jsonData = JSON.parse(msg.payload);
+msg.payload = jsonData.mistLv01
+return msg;
