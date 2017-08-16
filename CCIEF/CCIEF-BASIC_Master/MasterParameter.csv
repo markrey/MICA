@@ -12,6 +12,6 @@ ID,DATA,COMMENT
 Slave,,
 ID,DATA,COMMENT
 1,1,Total number of slave
-2,192.168.3.1,Slave1 IP address
+2,192.168.0.91,Slave1 IP address
 3,1,Slave1 Number of occupied stations
 4,1,Slave1 Number of group

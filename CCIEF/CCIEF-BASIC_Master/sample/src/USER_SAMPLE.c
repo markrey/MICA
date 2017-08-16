@@ -35,12 +35,24 @@
 #include <termios.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <mosquitto.h>
+#include <stdlib.h>
 
 /*[ Definition for sample program ]*/
 #define	MAX_INTERFACE						20
 #define	MAX_PATH							260
 #define	SOCKET_NOT_OPEN						0
 #define	DIR_PROC_ROUTE						"/proc/net/route"
+
+#ifndef TRUE
+#define TRUE 1
+#endif
+
+#ifndef FALSE
+#define FALSE 0
+#endif
+
+#define BUFSIZE 2048
 
 /*[ Structure of sample program ]*/
 typedef struct
@@ -91,10 +103,93 @@ static void user_start_application( void );
 static void user_stop_application( void );
 static void user_start_cyclic( void );
 static void user_stop_cyclic( void );
+static void publish_slave_info( void );
 static void user_show_slave_info( void );
 static void user_show_master_info( void );
 static void user_show_parameter( void );
 static int user_get_adapter_info( USER_ADAPTER_INFO *pGetAdapterInfo );
+
+//--------------------- 
+char topic[BUFSIZE];
+char pubBuf[BUFSIZE];
+int connect_desire = TRUE;
+int is_debug = FALSE;
+struct mosquitto *mosq = NULL;
+char *id            = "mqtt/pub";
+char *host          = "192.168.10.125";
+int   port          = 1883;
+char *cafile        = NULL;
+char *certfile      = NULL;
+char *keyfile       = NULL;
+int   keepalive     = 60;
+
+/**
+ * Brokerとの接続成功時に実行されるcallback関数
+ */
+void on_connect(struct mosquitto *mosq, void *obj, int result)
+{
+    printf("%s(%d)\n", __FUNCTION__, __LINE__);
+    mosquitto_publish(mosq, NULL, topic, strlen(pubBuf), pubBuf, 0, false);
+}
+
+/**
+ * Brokerとの接続を切断した時に実行されるcallback関数
+ */
+void on_disconnect(struct mosquitto *mosq, void *obj, int rc)
+{
+    printf("%s(%d)\n", __FUNCTION__, __LINE__);
+}
+
+/**
+ * BrokerにMQTTメッセージ送信後に実行されるcallback関数
+ */
+static void on_publish(struct mosquitto *mosq, void *userdata, int mid)
+{
+    printf("%s(%d)\n", __FUNCTION__, __LINE__);
+    connect_desire = FALSE;
+    mosquitto_disconnect(mosq);
+}
+
+int mqttPublish()
+{
+	int ret = 0;
+    bool  clean_session = true;
+	struct mosquitto *mosq = NULL;
+
+	mosquitto_lib_init();
+    mosq = mosquitto_new(id, clean_session, NULL);
+    if(!mosq){
+        fprintf(stderr, "Cannot create mosquitto object\n");
+        mosquitto_lib_cleanup();
+        return(EXIT_FAILURE);
+    }
+    mosquitto_connect_callback_set(mosq, on_connect);
+    mosquitto_disconnect_callback_set(mosq, on_disconnect);
+    mosquitto_publish_callback_set(mosq, on_publish);
+
+    if(cafile != NULL) {
+        ret = mosquitto_tls_set(mosq, cafile, NULL, certfile, keyfile, NULL);
+        if(ret != MOSQ_ERR_SUCCESS) {
+            printf("mosquitto_tls_set function is failed.\n");
+        }
+        mosquitto_tls_insecure_set(mosq, true);
+    }
+
+    if(mosquitto_connect_bind(mosq, host, port, keepalive, NULL)){
+        fprintf(stderr, "failed to connect broker.\n");
+        mosquitto_lib_cleanup();
+        return(EXIT_FAILURE);
+    }
+
+    do {
+        ret = mosquitto_loop_forever(mosq, -1, 1);
+    } while((ret == MOSQ_ERR_SUCCESS) && (connect_desire != FALSE));
+
+	mosquitto_destroy(mosq);
+    mosquitto_lib_cleanup();
+	return ret;
+}
+
 
 /************************************************************************************/
 /* This is an user defined function for main function.								*/
@@ -587,6 +682,7 @@ int user_input_check( void )
 					break;
 				case '5':	/* Show information of the slave */
 					user_show_slave_info();
+					publish_slave_info();
 					break;
 				case '6':	/* Show information of the master */
 					user_show_master_info();
@@ -686,6 +782,119 @@ void user_stop_cyclic( void )
 	{
 		(void)ccief_basic_master_stop_cyclic( i );
 	}
+
+	return;
+}
+
+/************************************************************************************/
+/* This is an user defined function for showing information of the slave.			*/
+/************************************************************************************/
+void publish_slave_info( void )
+{
+	CCIEF_BASIC_MASTER_PARAMETER *pParameter;
+	CCIEF_BASIC_SLAVE_INFO SlaveInfo;
+	uint16_t *pusRX, *pusRY, *pusRWw, *pusRWr;
+	uint16_t *pusData;
+	uint16_t usOccupiedStationNumber;
+	int iDataIndex, iDataSize;
+	int i, j, k, iStationNumber;
+
+	pParameter = &UserMasterParameter;
+	/* Getting the start pointer of RX */
+	pusRX = ccief_basic_master_get_pointer( CCIEF_BASIC_DEVICE_TYPE_RX );
+	/* Getting the start pointer of RY */
+	pusRY = ccief_basic_master_get_pointer( CCIEF_BASIC_DEVICE_TYPE_RY );
+	/* Getting the start pointer of RWw */
+	pusRWw = ccief_basic_master_get_pointer( CCIEF_BASIC_DEVICE_TYPE_RWW );
+	/* Getting the start pointer of RWr */
+	pusRWr = ccief_basic_master_get_pointer( CCIEF_BASIC_DEVICE_TYPE_RWR );
+
+	/* Showing the cyclic data */
+	iStationNumber = 0;
+	for ( i = 0; i < pParameter->iTotalSlaveNumber; i ++ )
+	{
+		/* Getting the slave state */
+		ccief_basic_master_get_slave_info( i, &SlaveInfo );
+		usOccupiedStationNumber = pParameter->Slave[i].usOccupiedStationNumber;
+		sprintf(pubBuf, "{\"SlaveNo\":%d,", i + 1 );
+		sprintf(pubBuf, "%s\"SlaveID\":\"%08lX\",",pubBuf, SlaveInfo.ulId );
+		sprintf(pubBuf, "%s\"OccupiedStationNumber\":%d,",pubBuf, SlaveInfo.usOccupiedStationNumber );
+		if ( SlaveInfo.ucGroupNumber != 0 )
+		{
+			sprintf(pubBuf, "%s\"GroupNo\":%d,",pubBuf, SlaveInfo.ucGroupNumber );
+		}
+		sprintf(pubBuf, "%s\"State\":%d,",pubBuf, SlaveInfo.iState);
+		sprintf(pubBuf, "%s\"ProtocolVersion\":\"%04X\",",pubBuf, SlaveInfo.usProtocolVersion );
+		sprintf(pubBuf, "%s\"EndCode\":\"%04X\",",pubBuf, SlaveInfo.usEndCode );
+		sprintf(pubBuf, "%s\"SlaveNotifyInformation\":{" ,pubBuf);
+		sprintf(pubBuf, "%s\"VenderCode\":\"%04X\",",pubBuf, SlaveInfo.NotifyInfo.usVenderCode );
+		sprintf(pubBuf, "%s\"ModelCode\":\"%08X\",",pubBuf, SlaveInfo.NotifyInfo.ulModelCode );
+		sprintf(pubBuf, "%s\"MachineVersion\":\"%04X\",",pubBuf, SlaveInfo.NotifyInfo.usMachineVersion );
+		sprintf(pubBuf, "%s\"UnitInfo\":\"%04X\",",pubBuf, SlaveInfo.NotifyInfo.usUnitInfo );
+		sprintf(pubBuf, "%s\"ErrorCode\":\"%04X\",",pubBuf, SlaveInfo.NotifyInfo.usErrCode );
+		sprintf(pubBuf, "%s\"UnitData\":\"%08X\",",pubBuf, SlaveInfo.NotifyInfo.ulUnitData );
+		sprintf(pubBuf, "%s\"FrameSequenceNumber\":\"%04X\"",pubBuf, SlaveInfo.usFrameSequenceNumber );
+		sprintf(pubBuf, "%s}," ,pubBuf);
+		iDataIndex = ( CCIEF_BASIC_RX_RY_SIZE / sizeof( uint16_t ) ) * iStationNumber;
+		iDataSize = ( CCIEF_BASIC_RX_RY_SIZE / sizeof( uint16_t ) ) * usOccupiedStationNumber;
+		sprintf(pubBuf, "%s\"RX\":[" ,pubBuf);
+		for ( j = 0; j < iDataSize; j ++ )
+		{
+			pusData = pusRX + iDataIndex + j;
+			for ( k = 0; k < 16; k ++ )
+			{
+				if(!((j==0) && (k==0))) {
+					sprintf(pubBuf, "%s,",pubBuf);
+				}
+				sprintf(pubBuf, "%s %d",pubBuf, ( *pusData >> ( 16 - ( k + 1 ))) & 0x1 );
+			}
+		}
+		sprintf(pubBuf, "%s]," ,pubBuf);
+		sprintf(pubBuf, "%s\"RY\":[" ,pubBuf);
+		for ( j = 0; j < iDataSize; j ++ )
+		{
+			pusData = pusRY + iDataIndex + j;
+			for ( k = 0; k < 16; k ++ ) {
+				if(!((j==0) && (k==0))) {
+					sprintf(pubBuf, "%s,",pubBuf);
+				}
+				sprintf(pubBuf, "%s %d",pubBuf, ( *pusData >> ( 16 - ( k + 1 ))) & 0x1 );
+			}
+		}
+		sprintf(pubBuf, "%s]," ,pubBuf);
+		iDataIndex = ( CCIEF_BASIC_RWW_RWR_SIZE / sizeof( uint16_t ) ) * iStationNumber;
+		iDataSize = ( CCIEF_BASIC_RWW_RWR_SIZE / sizeof( uint16_t ) ) * usOccupiedStationNumber;
+		sprintf(pubBuf, "%s\"RWw\":[" ,pubBuf);
+		for ( j = 0; j < ( iDataSize / 8 ); j ++ )
+		{
+			pusData = pusRWw + iDataIndex + ( j + 1 ) * 8;
+			for ( k = 0; k < 8; k ++ ) {
+				if(!((j==0) && (k==0))) {
+					sprintf(pubBuf, "%s,",pubBuf);
+				}
+				pusData --;
+				sprintf(pubBuf, "%s \"%04X\"",pubBuf, *pusData );
+			}
+		}
+		sprintf(pubBuf, "%s]," ,pubBuf);
+		sprintf(pubBuf, "%s\"RWr\":[" ,pubBuf);
+		for ( j = 0; j < ( iDataSize / 8 ); j ++ )
+		{
+			pusData = pusRWr + iDataIndex + ( j + 1 ) * 8;
+			for ( k = 0; k < 8; k ++ )
+			{
+				if(!((j==0) && (k==0))) {
+					sprintf(pubBuf, "%s,",pubBuf);
+				}
+				pusData --;
+				sprintf(pubBuf, "%s \"%04X\"",pubBuf, *pusData );
+			}
+		}
+		sprintf(pubBuf, "%s]}" ,pubBuf);
+		iStationNumber += usOccupiedStationNumber;
+	}
+	strcpy(topic,"ccief");
+	mqttPublish();
 
 	return;
 }

@@ -1,0 +1,197 @@
+
+<?xml version="1.0" encoding="UTF-8"?>
+<MTConnectStreams xmlns:m="urn:mtconnect.org:MTConnectStreams:1.3" xmlns="urn:mtconnect.org:MTConnectStreams:1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:x="urn:mazakusa.com:MazakStreams:1.3" xsi:schemaLocation="urn:mazakusa.com:MazakStreams:1.3 /schemas/MazakStreams_1.3.xsd">
+  <Header creationTime="2017-08-09T04:53:26Z" sender="DMZ-MTCNCT" instanceId="1494368529" version="1.3.0.17" bufferSize="131072" nextSequence="10780906" firstSequence="10649834" lastSequence="10780905"/>
+  <Streams>
+    <DeviceStream name="MFMS7-MC2" uuid="MAZAK-M7ZLM87010Z">
+      <ComponentStream component="Axes" name="base" componentId="a">
+        <Condition>
+          <Normal dataItemId="servo" timestamp="2017-08-04T04:57:04.167109Z" name="servo_cond" sequence="9946609" type="ACTUATOR"/>
+        </Condition>
+      </ComponentStream>
+      <ComponentStream component="Rotary" name="B" componentId="br">
+        <Samples>
+          <AngularVelocity dataItemId="bf" timestamp="2017-08-09T04:18:44.856784Z" name="Bfrt" sequence="10780332">0</AngularVelocity>
+          <Load dataItemId="bl" timestamp="2017-08-09T04:20:51.966422Z" name="Bload" sequence="10780593">0</Load>
+          <Angle dataItemId="bpos" timestamp="2017-08-09T04:18:43.684918Z" name="Bdeg" sequence="10780324" subType="ACTUAL">0</Angle>
+        </Samples>
+        <Events>
+          <RotaryMode dataItemId="brf" timestamp="2017-05-09T22:22:09.476928Z" name="brfunc" sequence="7">UNAVAILABLE</RotaryMode>
+        </Events>
+        <Condition>
+          <Normal dataItemId="bt" timestamp="2017-08-04T04:57:04.167109Z" name="Btravel" sequence="9946636" type="ANGLE"/>
+        </Condition>
+      </ComponentStream>
+      <ComponentStream component="Rotary" name="C" componentId="c">
+        <Samples>
+          <AngularVelocity dataItemId="cf" timestamp="2017-08-09T04:18:46.028675Z" name="Cfrt" sequence="10780342">0</AngularVelocity>
+          <Load dataItemId="cl" timestamp="2017-08-09T04:20:53.138292Z" name="Cload" sequence="10780601">0</Load>
+          <Angle dataItemId="cpos" timestamp="2017-08-09T04:18:46.028675Z" name="Cdeg" sequence="10780341" subType="ACTUAL">0</Angle>
+          <RotaryVelocity dataItemId="cs" timestamp="2017-08-09T04:19:40.200641Z" name="Srpm" sequence="10780412" subType="ACTUAL">0</RotaryVelocity>
+          <Temperature dataItemId="ctemp" timestamp="2017-08-09T04:37:20.452729Z" name="Stemp" sequence="10780897">24</Temperature>
+          <Load dataItemId="sl" timestamp="2017-08-09T04:18:01.841078Z" name="Sload" sequence="10780165">0</Load>
+        </Samples>
+        <Events>
+          <RotaryMode dataItemId="rf" timestamp="2017-05-09T22:22:09.476928Z" name="crfunc" sequence="49">UNAVAILABLE</RotaryMode>
+        </Events>
+        <Condition>
+          <Normal dataItemId="ct" timestamp="2017-08-04T04:57:04.167109Z" name="Ctravel" sequence="9946640" type="ANGLE"/>
+          <Normal dataItemId="spc" timestamp="2017-08-04T04:57:04.167109Z" name="Sload_cond" sequence="9946647" type="LOAD"/>
+          <Normal dataItemId="tmp" timestamp="2017-08-04T04:57:04.167109Z" name="Stemp_cond" sequence="9946648" type="TEMPERATURE"/>
+        </Condition>
+      </ComponentStream>
+      <ComponentStream component="Rotary" name="C" componentId="c2">
+        <Samples>
+          <AngularVelocity dataItemId="cf2" timestamp="2017-05-09T22:22:09.476928Z" name="C2frt" sequence="11">UNAVAILABLE</AngularVelocity>
+          <Load dataItemId="cl2" timestamp="2017-05-09T22:22:09.476928Z" name="C2load" sequence="13">UNAVAILABLE</Load>
+          <Angle dataItemId="cpos2" timestamp="2017-05-09T22:22:09.476928Z" name="C2deg" sequence="18" subType="ACTUAL">UNAVAILABLE</Angle>
+          <RotaryVelocity dataItemId="cs2" timestamp="2017-05-09T22:22:09.476928Z" name="S2rpm" sequence="20" subType="ACTUAL">UNAVAILABLE</RotaryVelocity>
+          <Temperature dataItemId="ctemp2" timestamp="2017-05-09T22:22:09.476928Z" name="S2temp" sequence="24">UNAVAILABLE</Temperature>
+          <Load dataItemId="sl2" timestamp="2017-05-09T22:22:09.476928Z" name="S2load" sequence="54">UNAVAILABLE</Load>
+        </Samples>
+        <Events>
+          <RotaryMode dataItemId="rf2" timestamp="2017-05-09T22:22:09.476928Z" name="c2rfunc" sequence="50">UNAVAILABLE</RotaryMode>
+        </Events>
+        <Condition>
+          <Unavailable dataItemId="ct2" timestamp="2017-05-09T22:22:09.476928Z" name="C2travel" sequence="22" type="ANGLE"/>
+          <Unavailable dataItemId="spc2" timestamp="2017-05-09T22:22:09.476928Z" name="S2load_cond" sequence="56" type="LOAD"/>
+          <Unavailable dataItemId="tmp2" timestamp="2017-05-09T22:22:09.476928Z" name="S2temp_cond" sequence="63" type="TEMPERATURE"/>
+        </Condition>
+      </ComponentStream>
+      <ComponentStream component="Controller" name="controller" componentId="cont">
+        <Events>
+          <EmergencyStop dataItemId="estop" timestamp="2017-08-04T16:44:16.531469Z" name="estop" sequence="10020156">ARMED</EmergencyStop>
+        </Events>
+        <Condition>
+          <Normal dataItemId="ccond" timestamp="2017-08-04T04:57:04.167109Z" name="comms_cond" sequence="9946610" type="COMMUNICATIONS"/>
+          <Normal dataItemId="logic" timestamp="2017-08-08T22:44:38.848784Z" name="logic_cond" sequence="10740079" type="LOGIC_PROGRAM"/>
+          <Normal dataItemId="system" timestamp="2017-08-09T04:18:43.684918Z" name="system_cond" sequence="10780322" type="SYSTEM"/>
+        </Condition>
+      </ComponentStream>
+      <ComponentStream component="Coolant" name="coolant" componentId="coolant">
+        <Condition>
+          <Normal dataItemId="coollevel" timestamp="2017-08-04T04:57:04.167109Z" name="coolant_level" sequence="9946616" type="LEVEL"/>
+          <Normal dataItemId="coolpress" timestamp="2017-08-04T04:57:04.167109Z" name="coolant_pres" sequence="9946618" type="PRESSURE"/>
+          <Normal dataItemId="cooltemp" timestamp="2017-08-04T04:57:04.167109Z" name="coolant_temp" sequence="9946617" type="TEMPERATURE"/>
+        </Condition>
+      </ComponentStream>
+      <ComponentStream component="Device" name="MFMS7-MC2" componentId="d1">
+        <Events>
+          <Availability dataItemId="avail" timestamp="2017-08-04T04:57:04.167109Z" sequence="9946608">AVAILABLE</Availability>
+          <AssetChanged dataItemId="d1_asset_chg" timestamp="2017-05-09T22:22:09.476928Z" sequence="26" assetType="">UNAVAILABLE</AssetChanged>
+          <AssetRemoved dataItemId="d1_asset_rem" timestamp="2017-05-09T22:22:09.476928Z" sequence="27" assetType="">UNAVAILABLE</AssetRemoved>
+          <FunctionalMode dataItemId="functionalmode" timestamp="2017-05-09T22:22:09.476928Z" name="functionalmode" sequence="30">UNAVAILABLE</FunctionalMode>
+        </Events>
+      </ComponentStream>
+      <ComponentStream component="Electric" name="electric" componentId="elec">
+        <Events>
+          <PowerState dataItemId="pwr" timestamp="2017-05-09T22:22:09.476928Z" name="power" sequence="47">UNAVAILABLE</PowerState>
+        </Events>
+        <Condition>
+          <Normal dataItemId="pwrt" timestamp="2017-08-04T04:57:04.167109Z" name="electric_temp" sequence="9946620" type="TEMPERATURE"/>
+        </Condition>
+      </ComponentStream>
+      <ComponentStream component="Hydraulic" name="hydraulic" componentId="hydraulic">
+        <Condition>
+          <Normal dataItemId="hyd" timestamp="2017-08-04T04:57:04.167109Z" name="hydra_cond" sequence="9946614" type="PRESSURE"/>
+        </Condition>
+      </ComponentStream>
+      <ComponentStream component="Path" name="path" componentId="path1">
+        <Samples>
+          <AccumulatedTime dataItemId="atime" timestamp="2017-08-09T04:23:12.091686Z" name="auto_time" sequence="10780883" subType="x:AUTO">89072584</AccumulatedTime>
+          <AccumulatedTime dataItemId="ctime" timestamp="2017-08-09T04:21:02.294552Z" name="cut_time" sequence="10780641" subType="x:CUT">52244644</AccumulatedTime>
+          <PathFeedrate dataItemId="pf" timestamp="2017-08-09T04:23:12.091686Z" name="Fact" sequence="10780881" subType="ACTUAL">0</PathFeedrate>
+          <AccumulatedTime dataItemId="yltime" timestamp="2017-08-09T04:53:01.376470Z" name="total_time" sequence="10780905" subType="x:TOTAL">188301372</AccumulatedTime>
+        </Samples>
+        <Events>
+          <RotaryVelocityOverride dataItemId="Sovr" timestamp="2017-08-04T04:57:04.167109Z" name="Sovr" sequence="9946658" subType="ACTUAL">100</RotaryVelocityOverride>
+          <Execution dataItemId="exec" timestamp="2017-08-09T04:23:12.091686Z" name="execution" sequence="10780879">READY</Execution>
+          <Line dataItemId="ln" timestamp="2017-08-09T04:23:12.091686Z" name="line" sequence="10780880">0</Line>
+          <ControllerMode dataItemId="mode" timestamp="2017-08-09T01:26:33.352209Z" name="mode" sequence="10746019">AUTOMATIC</ControllerMode>
+          <PartCount dataItemId="pc" timestamp="2017-08-04T04:57:04.167109Z" name="PartCountAct" sequence="9946665">0</PartCount>
+          <ProgramComment dataItemId="pcmt" timestamp="2017-08-08T23:54:46.622661Z" name="program_cmt" sequence="10740792">250D SAD 50 TAPER 3RD OP FIN 55705C003</ProgramComment>
+          <ProgramEdit dataItemId="peditmode" timestamp="2017-05-09T22:22:09.476928Z" sequence="39">UNAVAILABLE</ProgramEdit>
+          <ProgramEditName dataItemId="peditname" timestamp="2017-05-09T22:22:09.476928Z" sequence="40">UNAVAILABLE</ProgramEditName>
+          <PathFeedrateOverride dataItemId="pfo" timestamp="2017-08-06T15:28:20.454799Z" name="Fovr" sequence="10298147" subType="ACTUAL">100</PathFeedrateOverride>
+          <PathFeedrateOverride dataItemId="pfr" timestamp="2017-08-08T19:37:32.326838Z" name="Frapidovr" sequence="10706119" subType="RAPID">100</PathFeedrateOverride>
+          <Program dataItemId="pgm" timestamp="2017-08-08T23:54:46.622661Z" name="program" sequence="10740791">55705C0031</Program>
+          <PalletId dataItemId="pltnum" timestamp="2017-08-08T23:54:08.560060Z" name="pallet_num" sequence="10740764">2</PalletId>
+          <x:SequenceNumber dataItemId="seq" timestamp="2017-08-09T04:23:12.091686Z" name="sequenceNum" sequence="10780882">0</x:SequenceNumber>
+          <ProgramComment dataItemId="spcmt" timestamp="2017-08-09T03:00:38.800733Z" name="subprogram_cmt" sequence="10765373" subType="x:SUB"/>
+          <Program dataItemId="spgm" timestamp="2017-08-09T03:00:38.800733Z" name="subprogram" sequence="10765372" subType="x:SUB"/>
+          <ToolNumber dataItemId="tid" timestamp="2017-08-09T04:20:46.138286Z" name="Tool_number" sequence="10780566">0</ToolNumber>
+          <x:ToolGroup dataItemId="tid1" timestamp="2017-08-08T02:49:16.360349Z" name="Tool_group" sequence="10562367">0</x:ToolGroup>
+          <x:ToolSuffix dataItemId="tsuf1" timestamp="2017-08-09T04:16:16.403385Z" name="Tool_suffix" sequence="10779717"/>
+          <x:Unit dataItemId="unit" timestamp="2017-08-04T04:57:04.167109Z" name="unitNum" sequence="9946664">0</x:Unit>
+        </Events>
+        <Condition>
+          <Normal dataItemId="motion" timestamp="2017-08-09T00:50:21.222926Z" name="motion_cond" sequence="10742742" type="MOTION_PROGRAM"/>
+          <Normal dataItemId="path_system" timestamp="2017-08-09T01:18:56.335658Z" name="path_system" sequence="10744771" type="SYSTEM"/>
+        </Condition>
+      </ComponentStream>
+      <ComponentStream component="Pneumatic" name="pneumatic" componentId="pneumatic">
+        <Condition>
+          <Normal dataItemId="pneupress" timestamp="2017-08-04T04:57:04.167109Z" name="pneu_cond" sequence="9946613" type="PRESSURE"/>
+        </Condition>
+      </ComponentStream>
+      <ComponentStream component="Linear" name="Z4" componentId="v">
+        <Samples>
+          <AxisFeedrate dataItemId="vf" timestamp="2017-05-09T22:22:09.476928Z" name="Vfrt" sequence="66">UNAVAILABLE</AxisFeedrate>
+          <Load dataItemId="vl" timestamp="2017-05-09T22:22:09.476928Z" name="Vload" sequence="67">UNAVAILABLE</Load>
+          <Position dataItemId="vp" timestamp="2017-05-09T22:22:09.476928Z" name="Vabs" sequence="68" subType="ACTUAL">UNAVAILABLE</Position>
+        </Samples>
+        <Condition>
+          <Unavailable dataItemId="vt" timestamp="2017-05-09T22:22:09.476928Z" name="Vtravel" sequence="69" type="POSITION"/>
+        </Condition>
+      </ComponentStream>
+      <ComponentStream component="Linear" name="Z3" componentId="w">
+        <Samples>
+          <AxisFeedrate dataItemId="wf" timestamp="2017-05-09T22:22:09.476928Z" name="Wfrt" sequence="70">UNAVAILABLE</AxisFeedrate>
+          <Load dataItemId="wl" timestamp="2017-05-09T22:22:09.476928Z" name="Wload" sequence="72">UNAVAILABLE</Load>
+          <Position dataItemId="wp" timestamp="2017-05-09T22:22:09.476928Z" name="Wabs" sequence="74" subType="ACTUAL">UNAVAILABLE</Position>
+        </Samples>
+        <Condition>
+          <Unavailable dataItemId="wt" timestamp="2017-05-09T22:22:09.476928Z" name="Wtravel" sequence="76" type="POSITION"/>
+        </Condition>
+      </ComponentStream>
+      <ComponentStream component="Linear" name="Z2" componentId="w2">
+        <Samples>
+          <AxisFeedrate dataItemId="wf2" timestamp="2017-08-09T04:21:20.919585Z" name="Wfrt" sequence="10780712">0</AxisFeedrate>
+          <Load dataItemId="wl2" timestamp="2017-08-09T04:29:07.467381Z" name="Wload" sequence="10780887">15</Load>
+          <Position dataItemId="wp2" timestamp="2017-08-09T04:21:20.919585Z" name="Wabs" sequence="10780711" subType="ACTUAL">700</Position>
+        </Samples>
+        <Condition>
+          <Normal dataItemId="wt2" timestamp="2017-08-04T04:57:04.167109Z" name="Wtravel" sequence="9946632" type="POSITION"/>
+        </Condition>
+      </ComponentStream>
+      <ComponentStream component="Linear" name="X" componentId="x">
+        <Samples>
+          <AxisFeedrate dataItemId="xf" timestamp="2017-08-09T04:23:12.091686Z" name="Xfrt" sequence="10780877">0</AxisFeedrate>
+          <Load dataItemId="xl" timestamp="2017-08-09T04:32:50.436573Z" name="Xload" sequence="10780892">14</Load>
+        </Samples>
+        <Condition>
+          <Normal dataItemId="xt" timestamp="2017-08-04T04:57:04.167109Z" name="Xtravel" sequence="9946622" type="POSITION"/>
+        </Condition>
+      </ComponentStream>
+      <ComponentStream component="Linear" name="Y" componentId="y">
+        <Samples>
+          <AxisFeedrate dataItemId="yf" timestamp="2017-08-09T04:22:54.685402Z" name="Yfrt" sequence="10780852">0</AxisFeedrate>
+          <Load dataItemId="yl" timestamp="2017-08-09T04:22:54.685402Z" name="Yload" sequence="10780853">6</Load>
+        </Samples>
+        <Condition>
+          <Normal dataItemId="yt" timestamp="2017-08-04T04:57:04.167109Z" name="Ytravel" sequence="9946625" type="POSITION"/>
+        </Condition>
+      </ComponentStream>
+      <ComponentStream component="Linear" name="Z" componentId="z">
+        <Samples>
+          <AxisFeedrate dataItemId="zf" timestamp="2017-08-09T04:21:20.919585Z" name="Zfrt" sequence="10780710">0</AxisFeedrate>
+          <Load dataItemId="zl" timestamp="2017-08-09T04:22:45.091639Z" name="Zload" sequence="10780827">59</Load>
+          <Position dataItemId="zp" timestamp="2017-08-09T04:21:20.919585Z" name="Zabs" sequence="10780709" subType="ACTUAL">882.9695</Position>
+        </Samples>
+        <Condition>
+          <Normal dataItemId="zt" timestamp="2017-08-04T04:57:04.167109Z" name="Ztravel" sequence="9946628" type="POSITION"/>
+        </Condition>
+      </ComponentStream>
+    </DeviceStream>
+  </Streams>
+</MTConnectStreams>

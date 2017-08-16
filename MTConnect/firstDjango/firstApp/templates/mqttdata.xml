@@ -1,0 +1,121 @@
+{% load staticfiles %}
+<?xml version="1.0" encoding="UTF-8"?>
+<MTConnectDevices xmlns:m="urn:mtconnect.com:MTConnectDevices:1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:mtconnect.com:MTConnectDevices:1.1" xsi:schemaLocation="urn:mtconnect.com:MTConnectDevices:1.1 http://www.mtconnect.org/schemas/MTConnectDevices_1.1.xsd">
+<Header creationTime="{{ createTime }}" sender="localhost" version="1.2" bufferSize="131000" instanceId="1" />
+
+<Devices>
+<Device id="DMY{{ ID01 }}" uuid="DMY{{ ID01 }}" name="MISTLEVEL_SENSOR">
+  <Description>Mist Level Sensor</Description>
+  <DataItems>
+    <DataItem type="MISTLEVEL" id="mistlv" category="SAMPLE" name="mistlevel" units="{{ mUnit01 }}">{{ mistLv01 }}</DataItem>
+    <DataItem type="TEMPERATURE" id="temp" category="SAMPLE" name="temperature" units="DEGREE">{{ temp01 }}</DataItem>
+  </DataItems>
+</Device>
+<Device id="DMY{{ ID02 }}" uuid="DMY{{ ID02 }}" name="MISTLEVEL_SENSOR">
+  <Description>Mist Level Sensor</Description>
+  <DataItems>
+    <DataItem type="MISTLEVEL" id="mistlv" category="SAMPLE" name="mistlevel" units="{{ mUnit02 }}">{{ mistLv02 }}</DataItem>
+    <DataItem type="TEMPERATURE" id="temp" category="SAMPLE" name="temperature" units="DEGREE">{{ temp02 }}</DataItem>
+  </DataItems>
+</Device>
+<Device id="DMY{{ ID03 }}" uuid="DMY{{ ID03 }}" name="MISTLEVEL_SENSOR">
+  <Description>Mist Level Sensor</Description>
+  <DataItems>
+    <DataItem type="MISTLEVEL" id="mistlv" category="SAMPLE" name="mistlevel" units="{{ mUnit03 }}">{{ mistLv03 }}</DataItem>
+    <DataItem type="TEMPERATURE" id="temp" category="SAMPLE" name="temperature" units="DEGREE">{{ temp03 }}</DataItem>
+  </DataItems>
+</Device>
+<Device id="DMY{{ ID04 }}" uuid="DMY{{ ID04 }}" name="MISTLEVEL_SENSOR">
+  <Description>Mist Level Sensor</Description>
+  <DataItems>
+    <DataItem type="MISTLEVEL" id="mistlv" category="SAMPLE" name="mistlevel" units="{{ mUnit04 }}">{{ mistLv04 }}</DataItem>
+    <DataItem type="TEMPERATURE" id="temp" category="SAMPLE" name="temperature" units="DEGREE">{{ temp04 }}</DataItem>
+  </DataItems>
+</Device>
+<Device id="DMY{{ ID05 }}" uuid="DMY{{ ID05 }}" name="MISTLEVEL_SENSOR">
+  <Description>Mist Level Sensor</Description>
+  <DataItems>
+    <DataItem type="MISTLEVEL" id="mistlv" category="SAMPLE" name="mistlevel" units="{{ mUnit05 }}">{{ mistLv05 }}</DataItem>
+    <DataItem type="TEMPERATURE" id="temp" category="SAMPLE" name="temperature" units="DEGREE">{{ temp05 }}</DataItem>
+  </DataItems>
+</Device>
+<Device id="DMY{{ ID06 }}" uuid="DMY{{ ID06 }}" name="MISTLEVEL_SENSOR">
+  <Description>Mist Level Sensor</Description>
+  <DataItems>
+    <DataItem type="MISTLEVEL" id="mistlv" category="SAMPLE" name="mistlevel" units="{{ mUnit06 }}">{{ mistLv06 }}</DataItem>
+    <DataItem type="TEMPERATURE" id="temp" category="SAMPLE" name="temperature" units="DEGREE">{{ temp06 }}</DataItem>
+  </DataItems>
+</Device>
+<Device id="DMY{{ ID07 }}" uuid="DMY{{ ID07 }}" name="MISTLEVEL_SENSOR">
+  <Description>Mist Level Sensor</Description>
+  <DataItems>
+    <DataItem type="MISTLEVEL" id="mistlv" category="SAMPLE" name="mistlevel" units="{{ mUnit07 }}">{{ mistLv07 }}</DataItem>
+    <DataItem type="TEMPERATURE" id="temp" category="SAMPLE" name="temperature" units="DEGREE">{{ temp07 }}</DataItem>
+  </DataItems>
+</Device>
+<Device id="DMY{{ ID08 }}" uuid="DMY{{ ID08 }}" name="MISTLEVEL_SENSOR">
+  <Description>Mist Level Sensor</Description>
+  <DataItems>
+    <DataItem type="MISTLEVEL" id="mistlv" category="SAMPLE" name="mistlevel" units="{{ mUnit08 }}">{{ mistLv08 }}</DataItem>
+    <DataItem type="TEMPERATURE" id="temp" category="SAMPLE" name="temperature" units="DEGREE">{{ temp08 }}</DataItem>
+  </DataItems>
+</Device>
+<Device id="DMY{{ ID09 }}" uuid="DMY{{ ID09 }}" name="MISTLEVEL_SENSOR">
+  <Description>Mist Level Sensor</Description>
+  <DataItems>
+    <DataItem type="MISTLEVEL" id="mistlv" category="SAMPLE" name="mistlevel" units="{{ mUnit09 }}">{{ mistLv09 }}</DataItem>
+    <DataItem type="TEMPERATURE" id="temp" category="SAMPLE" name="temperature" units="DEGREE">{{ temp09 }}</DataItem>
+  </DataItems>
+</Device>
+<Device id="DMY{{ ID10 }}" uuid="DMY{{ ID10 }}" name="MISTLEVEL_SENSOR">
+  <Description>Mist Level Sensor</Description>
+  <DataItems>
+    <DataItem type="MISTLEVEL" id="mistlv" category="SAMPLE" name="mistlevel" units="{{ mUnit10 }}">{{ mistLv10 }}</DataItem>
+    <DataItem type="TEMPERATURE" id="temp" category="SAMPLE" name="temperature" units="DEGREE">{{ temp10 }}</DataItem>
+  </DataItems>
+</Device>
+<Device id="DMY{{ ID11 }}" uuid="DMY{{ ID11 }}" name="MISTLEVEL_SENSOR">
+  <Description>Mist Level Sensor</Description>
+  <DataItems>
+    <DataItem type="MISTLEVEL" id="mistlv" category="SAMPLE" name="mistlevel" units="{{ mUnit11 }}">{{ mistLv11 }}</DataItem>
+    <DataItem type="TEMPERATURE" id="temp" category="SAMPLE" name="temperature" units="DEGREE">{{ temp11 }}</DataItem>
+  </DataItems>
+</Device>
+<Device id="DMY{{ ID12 }}" uuid="DMY{{ ID12 }}" name="MISTLEVEL_SENSOR">
+  <Description>Mist Level Sensor</Description>
+  <DataItems>
+    <DataItem type="MISTLEVEL" id="mistlv" category="SAMPLE" name="mistlevel" units="{{ mUnit12 }}">{{ mistLv12 }}</DataItem>
+    <DataItem type="TEMPERATURE" id="temp" category="SAMPLE" name="temperature" units="DEGREE">{{ temp12 }}</DataItem>
+  </DataItems>
+</Device>
+<Device id="DMY{{ ID13 }}" uuid="DMY{{ ID13 }}" name="MISTLEVEL_SENSOR">
+  <Description>Mist Level Sensor</Description>
+  <DataItems>
+    <DataItem type="MISTLEVEL" id="mistlv" category="SAMPLE" name="mistlevel" units="{{ mUnit13 }}">{{ mistLv13 }}</DataItem>
+    <DataItem type="TEMPERATURE" id="temp" category="SAMPLE" name="temperature" units="DEGREE">{{ temp13 }}</DataItem>
+  </DataItems>
+</Device>
+<Device id="DMY{{ ID14 }}" uuid="DMY{{ ID14 }}" name="MISTLEVEL_SENSOR">
+  <Description>Mist Level Sensor</Description>
+  <DataItems>
+    <DataItem type="MISTLEVEL" id="mistlv" category="SAMPLE" name="mistlevel" units="{{ mUnit14 }}">{{ mistLv14 }}</DataItem>
+    <DataItem type="TEMPERATURE" id="temp" category="SAMPLE" name="temperature" units="DEGREE">{{ temp14 }}</DataItem>
+  </DataItems>
+</Device>
+<Device id="DMY{{ ID15 }}" uuid="DMY{{ ID15 }}" name="MISTLEVEL_SENSOR">
+  <Description>Mist Level Sensor</Description>
+  <DataItems>
+    <DataItem type="MISTLEVEL" id="mistlv" category="SAMPLE" name="mistlevel" units="{{ mUnit15 }}">{{ mistLv15 }}</DataItem>
+    <DataItem type="TEMPERATURE" id="temp" category="SAMPLE" name="temperature" units="DEGREE">{{ temp15 }}</DataItem>
+  </DataItems>
+</Device>
+<Device id="DMY{{ ID16 }}" uuid="DMY{{ ID16 }}" name="MISTLEVEL_SENSOR">
+  <Description>Mist Level Sensor</Description>
+  <DataItems>
+    <DataItem type="MISTLEVEL" id="mistlv" category="SAMPLE" name="mistlevel" units="{{ mUnit16 }}">{{ mistLv16 }}</DataItem>
+    <DataItem type="TEMPERATURE" id="temp" category="SAMPLE" name="temperature" units="DEGREE">{{ temp16 }}</DataItem>
+  </DataItems>
+</Device>
+</Devices>
+</MTConnectDevices>
+

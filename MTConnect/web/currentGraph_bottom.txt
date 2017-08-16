@@ -1,0 +1,31 @@
+      },
+      options: {
+          showTooltips : false, 
+          scales: {
+              xAxes: [{
+                    stacked: true, //積み上げ棒グラフにする設定
+                    categoryPercentage:0.4 //棒グラフの太さ
+              }],
+              yAxes: [{
+                    stacked: true, //積み上げ棒グラフにする設定
+                    ticks: {
+                        beginAtZero: true
+                    }
+                    
+              }]
+          }
+         ,legend: {
+            display: false
+         }
+       ,responsive: true, animation : false, bezierCurve : false      }
+  });
+  chart.options.tooltips.enabled = false;
+</script>
+
+
+<?php
+?>
+
+</body>
+
+</html>

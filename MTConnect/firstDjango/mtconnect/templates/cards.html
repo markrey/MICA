@@ -1,0 +1,15 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>トランプ</title>
+</head>
+<body>
+    {% static "cards/" as card_path %}
+    {% for rank in card_rank %}
+        <img src="{{ card_path }}C_{{ rank }}.png">
+    {% endfor %}
+</body>
+</html>
+

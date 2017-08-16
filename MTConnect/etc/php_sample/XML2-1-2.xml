@@ -1,0 +1,9 @@
+<?xml version="1.0"  encoding="UTF-8" ?>
+<root>
+  <parent>
+    <child attr="value1">Childe 1</child>
+    <child attr="value2">Childe 2</child>
+    <child attr="value3">Childe 3</child>
+  </parent>
+</root>
+

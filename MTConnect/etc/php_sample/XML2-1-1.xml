@@ -1,0 +1,8 @@
+<?xml version="1.0"  encoding="UTF-8" ?>
+<root>
+  <elemA attrA="valueA">
+    Sample A
+    <elemB attrB="valueB">Sample B</elemB>
+  </elemA>
+</root>
+

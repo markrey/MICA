@@ -1,0 +1,8 @@
+apt-get install software-properties-common
+add-apt-repository ppa:mosquitto-dev/mosquitto-ppa
+apt-get install libmosquitto-dev
+
+gcc -W -g MDSX_mqttPub.c -o MDSX_mqttPub -lmosquitto
+
+
+

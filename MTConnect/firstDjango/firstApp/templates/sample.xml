@@ -1,0 +1,125 @@
+
+<?xml version="1.0" encoding="UTF-8"?>
+<MTConnectStreams xmlns:m="urn:mtconnect.org:MTConnectStreams:1.3" xmlns="urn:mtconnect.org:MTConnectStreams:1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:x="urn:mazakusa.com:MazakStreams:1.3" xsi:schemaLocation="urn:mazakusa.com:MazakStreams:1.3 /schemas/MazakStreams_1.3.xsd">
+  <Header creationTime="2017-08-09T04:59:24Z" sender="DMZ-MTCNCT" instanceId="1494368529" version="1.3.0.17" bufferSize="131072" nextSequence="10649937" firstSequence="10649837" lastSequence="10780908"/>
+  <Streams>
+    <DeviceStream name="MFMS7-MC2" uuid="MAZAK-M7ZLM87010Z">
+      <ComponentStream component="Path" name="path" componentId="path1">
+        <Samples>
+          <AccumulatedTime dataItemId="atime" timestamp="2017-08-08T12:12:21.535944Z" name="auto_time" sequence="10649840" subType="x:AUTO">89035779</AccumulatedTime>
+          <AccumulatedTime dataItemId="atime" timestamp="2017-08-08T12:12:22.660895Z" name="auto_time" sequence="10649846" subType="x:AUTO">89035780</AccumulatedTime>
+          <AccumulatedTime dataItemId="atime" timestamp="2017-08-08T12:12:23.801519Z" name="auto_time" sequence="10649852" subType="x:AUTO">89035781</AccumulatedTime>
+          <AccumulatedTime dataItemId="atime" timestamp="2017-08-08T12:12:24.973415Z" name="auto_time" sequence="10649858" subType="x:AUTO">89035782</AccumulatedTime>
+          <AccumulatedTime dataItemId="atime" timestamp="2017-08-08T12:12:26.114043Z" name="auto_time" sequence="10649864" subType="x:AUTO">89035783</AccumulatedTime>
+          <AccumulatedTime dataItemId="atime" timestamp="2017-08-08T12:12:27.254666Z" name="auto_time" sequence="10649870" subType="x:AUTO">89035784</AccumulatedTime>
+          <AccumulatedTime dataItemId="atime" timestamp="2017-08-08T12:12:28.379659Z" name="auto_time" sequence="10649876" subType="x:AUTO">89035786</AccumulatedTime>
+          <AccumulatedTime dataItemId="atime" timestamp="2017-08-08T12:12:29.520285Z" name="auto_time" sequence="10649881" subType="x:AUTO">89035787</AccumulatedTime>
+          <AccumulatedTime dataItemId="atime" timestamp="2017-08-08T12:12:30.692162Z" name="auto_time" sequence="10649886" subType="x:AUTO">89035788</AccumulatedTime>
+          <AccumulatedTime dataItemId="atime" timestamp="2017-08-08T12:12:31.832789Z" name="auto_time" sequence="10649891" subType="x:AUTO">89035789</AccumulatedTime>
+          <AccumulatedTime dataItemId="atime" timestamp="2017-08-08T12:12:32.957808Z" name="auto_time" sequence="10649896" subType="x:AUTO">89035790</AccumulatedTime>
+          <AccumulatedTime dataItemId="atime" timestamp="2017-08-08T12:12:34.098412Z" name="auto_time" sequence="10649901" subType="x:AUTO">89035791</AccumulatedTime>
+          <AccumulatedTime dataItemId="atime" timestamp="2017-08-08T12:12:35.270293Z" name="auto_time" sequence="10649906" subType="x:AUTO">89035793</AccumulatedTime>
+          <AccumulatedTime dataItemId="atime" timestamp="2017-08-08T12:12:36.410926Z" name="auto_time" sequence="10649912" subType="x:AUTO">89035794</AccumulatedTime>
+          <AccumulatedTime dataItemId="atime" timestamp="2017-08-08T12:12:37.551560Z" name="auto_time" sequence="10649918" subType="x:AUTO">89035795</AccumulatedTime>
+          <AccumulatedTime dataItemId="atime" timestamp="2017-08-08T12:12:38.676553Z" name="auto_time" sequence="10649923" subType="x:AUTO">89035796</AccumulatedTime>
+          <AccumulatedTime dataItemId="atime" timestamp="2017-08-08T12:12:40.082812Z" name="auto_time" sequence="10649929" subType="x:AUTO">89035797</AccumulatedTime>
+          <AccumulatedTime dataItemId="atime" timestamp="2017-08-08T12:12:41.207814Z" name="auto_time" sequence="10649936" subType="x:AUTO">89035798</AccumulatedTime>
+          <AccumulatedTime dataItemId="ctime" timestamp="2017-08-08T12:12:21.535944Z" name="cut_time" sequence="10649841" subType="x:CUT">52219321</AccumulatedTime>
+          <AccumulatedTime dataItemId="ctime" timestamp="2017-08-08T12:12:22.660895Z" name="cut_time" sequence="10649847" subType="x:CUT">52219322</AccumulatedTime>
+          <AccumulatedTime dataItemId="ctime" timestamp="2017-08-08T12:12:23.801519Z" name="cut_time" sequence="10649853" subType="x:CUT">52219323</AccumulatedTime>
+          <AccumulatedTime dataItemId="ctime" timestamp="2017-08-08T12:12:24.973415Z" name="cut_time" sequence="10649859" subType="x:CUT">52219324</AccumulatedTime>
+          <AccumulatedTime dataItemId="ctime" timestamp="2017-08-08T12:12:26.114043Z" name="cut_time" sequence="10649865" subType="x:CUT">52219325</AccumulatedTime>
+          <AccumulatedTime dataItemId="ctime" timestamp="2017-08-08T12:12:27.254666Z" name="cut_time" sequence="10649871" subType="x:CUT">52219326</AccumulatedTime>
+          <AccumulatedTime dataItemId="ctime" timestamp="2017-08-08T12:12:28.379659Z" name="cut_time" sequence="10649877" subType="x:CUT">52219328</AccumulatedTime>
+          <AccumulatedTime dataItemId="ctime" timestamp="2017-08-08T12:12:29.520285Z" name="cut_time" sequence="10649882" subType="x:CUT">52219329</AccumulatedTime>
+          <AccumulatedTime dataItemId="ctime" timestamp="2017-08-08T12:12:30.692162Z" name="cut_time" sequence="10649887" subType="x:CUT">52219330</AccumulatedTime>
+          <AccumulatedTime dataItemId="ctime" timestamp="2017-08-08T12:12:31.832789Z" name="cut_time" sequence="10649892" subType="x:CUT">52219331</AccumulatedTime>
+          <AccumulatedTime dataItemId="ctime" timestamp="2017-08-08T12:12:32.957808Z" name="cut_time" sequence="10649897" subType="x:CUT">52219332</AccumulatedTime>
+          <AccumulatedTime dataItemId="ctime" timestamp="2017-08-08T12:12:34.098412Z" name="cut_time" sequence="10649902" subType="x:CUT">52219333</AccumulatedTime>
+          <AccumulatedTime dataItemId="ctime" timestamp="2017-08-08T12:12:35.270293Z" name="cut_time" sequence="10649907" subType="x:CUT">52219335</AccumulatedTime>
+          <AccumulatedTime dataItemId="ctime" timestamp="2017-08-08T12:12:36.410926Z" name="cut_time" sequence="10649913" subType="x:CUT">52219336</AccumulatedTime>
+          <AccumulatedTime dataItemId="ctime" timestamp="2017-08-08T12:12:37.551560Z" name="cut_time" sequence="10649919" subType="x:CUT">52219337</AccumulatedTime>
+          <AccumulatedTime dataItemId="ctime" timestamp="2017-08-08T12:12:38.676553Z" name="cut_time" sequence="10649924" subType="x:CUT">52219338</AccumulatedTime>
+          <AccumulatedTime dataItemId="ctime" timestamp="2017-08-08T12:12:40.082812Z" name="cut_time" sequence="10649930" subType="x:CUT">52219339</AccumulatedTime>
+        </Samples>
+      </ComponentStream>
+      <ComponentStream component="Linear" name="X" componentId="x">
+        <Samples>
+          <AxisFeedrate dataItemId="xf" timestamp="2017-08-08T12:12:22.660895Z" name="Xfrt" sequence="10649842">0.8383333</AxisFeedrate>
+          <AxisFeedrate dataItemId="xf" timestamp="2017-08-08T12:12:23.801519Z" name="Xfrt" sequence="10649848">1.786667</AxisFeedrate>
+          <AxisFeedrate dataItemId="xf" timestamp="2017-08-08T12:12:24.973415Z" name="Xfrt" sequence="10649854">2.151667</AxisFeedrate>
+          <AxisFeedrate dataItemId="xf" timestamp="2017-08-08T12:12:26.114043Z" name="Xfrt" sequence="10649860">1.825</AxisFeedrate>
+          <AxisFeedrate dataItemId="xf" timestamp="2017-08-08T12:12:27.254666Z" name="Xfrt" sequence="10649866">0.9366667</AxisFeedrate>
+          <AxisFeedrate dataItemId="xf" timestamp="2017-08-08T12:12:28.379659Z" name="Xfrt" sequence="10649872">0.4</AxisFeedrate>
+          <AxisFeedrate dataItemId="xf" timestamp="2017-08-08T12:12:29.520285Z" name="Xfrt" sequence="10649878">1.493333</AxisFeedrate>
+          <AxisFeedrate dataItemId="xf" timestamp="2017-08-08T12:12:30.692162Z" name="Xfrt" sequence="10649883">2.091667</AxisFeedrate>
+          <AxisFeedrate dataItemId="xf" timestamp="2017-08-08T12:12:31.832789Z" name="Xfrt" sequence="10649888">2.026667</AxisFeedrate>
+          <AxisFeedrate dataItemId="xf" timestamp="2017-08-08T12:12:32.957808Z" name="Xfrt" sequence="10649893">1.323333</AxisFeedrate>
+          <AxisFeedrate dataItemId="xf" timestamp="2017-08-08T12:12:34.098412Z" name="Xfrt" sequence="10649898">0.1783333</AxisFeedrate>
+          <AxisFeedrate dataItemId="xf" timestamp="2017-08-08T12:12:35.270293Z" name="Xfrt" sequence="10649903">1.133333</AxisFeedrate>
+          <AxisFeedrate dataItemId="xf" timestamp="2017-08-08T12:12:36.410926Z" name="Xfrt" sequence="10649908">1.936667</AxisFeedrate>
+          <AxisFeedrate dataItemId="xf" timestamp="2017-08-08T12:12:37.551560Z" name="Xfrt" sequence="10649914">2.13</AxisFeedrate>
+          <AxisFeedrate dataItemId="xf" timestamp="2017-08-08T12:12:38.676553Z" name="Xfrt" sequence="10649920">1.631667</AxisFeedrate>
+          <AxisFeedrate dataItemId="xf" timestamp="2017-08-08T12:12:40.082812Z" name="Xfrt" sequence="10649925">0.355</AxisFeedrate>
+          <AxisFeedrate dataItemId="xf" timestamp="2017-08-08T12:12:41.207814Z" name="Xfrt" sequence="10649931">0.8383333</AxisFeedrate>
+        </Samples>
+      </ComponentStream>
+      <ComponentStream component="Linear" name="Y" componentId="y">
+        <Samples>
+          <AxisFeedrate dataItemId="yf" timestamp="2017-08-08T12:12:21.535944Z" name="Yfrt" sequence="10649837">2.115</AxisFeedrate>
+          <AxisFeedrate dataItemId="yf" timestamp="2017-08-08T12:12:22.660895Z" name="Yfrt" sequence="10649843">1.98</AxisFeedrate>
+          <AxisFeedrate dataItemId="yf" timestamp="2017-08-08T12:12:23.801519Z" name="Yfrt" sequence="10649849">1.198333</AxisFeedrate>
+          <AxisFeedrate dataItemId="yf" timestamp="2017-08-08T12:12:24.973415Z" name="Yfrt" sequence="10649855">0.05333333</AxisFeedrate>
+          <AxisFeedrate dataItemId="yf" timestamp="2017-08-08T12:12:26.114043Z" name="Yfrt" sequence="10649861">1.133333</AxisFeedrate>
+          <AxisFeedrate dataItemId="yf" timestamp="2017-08-08T12:12:27.254666Z" name="Yfrt" sequence="10649867">1.94</AxisFeedrate>
+          <AxisFeedrate dataItemId="yf" timestamp="2017-08-08T12:12:28.379659Z" name="Yfrt" sequence="10649873">2.111667</AxisFeedrate>
+          <AxisFeedrate dataItemId="yf" timestamp="2017-08-08T12:12:29.520285Z" name="Yfrt" sequence="10649879">1.548333</AxisFeedrate>
+          <AxisFeedrate dataItemId="yf" timestamp="2017-08-08T12:12:30.692162Z" name="Yfrt" sequence="10649884">0.5066667</AxisFeedrate>
+          <AxisFeedrate dataItemId="yf" timestamp="2017-08-08T12:12:31.832789Z" name="Yfrt" sequence="10649889">0.72</AxisFeedrate>
+          <AxisFeedrate dataItemId="yf" timestamp="2017-08-08T12:12:32.957808Z" name="Yfrt" sequence="10649894">1.696667</AxisFeedrate>
+          <AxisFeedrate dataItemId="yf" timestamp="2017-08-08T12:12:34.098412Z" name="Yfrt" sequence="10649899">2.143333</AxisFeedrate>
+          <AxisFeedrate dataItemId="yf" timestamp="2017-08-08T12:12:35.270293Z" name="Yfrt" sequence="10649904">1.83</AxisFeedrate>
+          <AxisFeedrate dataItemId="yf" timestamp="2017-08-08T12:12:36.410926Z" name="Yfrt" sequence="10649909">0.9383333</AxisFeedrate>
+          <AxisFeedrate dataItemId="yf" timestamp="2017-08-08T12:12:37.551560Z" name="Yfrt" sequence="10649915">0.275</AxisFeedrate>
+          <AxisFeedrate dataItemId="yf" timestamp="2017-08-08T12:12:38.676553Z" name="Yfrt" sequence="10649921">1.403333</AxisFeedrate>
+          <AxisFeedrate dataItemId="yf" timestamp="2017-08-08T12:12:40.082812Z" name="Yfrt" sequence="10649926">2.123333</AxisFeedrate>
+          <AxisFeedrate dataItemId="yf" timestamp="2017-08-08T12:12:41.207814Z" name="Yfrt" sequence="10649932">1.981667</AxisFeedrate>
+          <Load dataItemId="yl" timestamp="2017-08-08T12:12:41.207814Z" name="Yload" sequence="10649933">12</Load>
+        </Samples>
+      </ComponentStream>
+      <ComponentStream component="Linear" name="Z" componentId="z">
+        <Samples>
+          <AxisFeedrate dataItemId="zf" timestamp="2017-08-08T12:12:21.535944Z" name="Zfrt" sequence="10649839">0.2483333</AxisFeedrate>
+          <AxisFeedrate dataItemId="zf" timestamp="2017-08-08T12:12:22.660895Z" name="Zfrt" sequence="10649845">0.25</AxisFeedrate>
+          <AxisFeedrate dataItemId="zf" timestamp="2017-08-08T12:12:23.801519Z" name="Zfrt" sequence="10649851">0.2483333</AxisFeedrate>
+          <AxisFeedrate dataItemId="zf" timestamp="2017-08-08T12:12:24.973415Z" name="Zfrt" sequence="10649857">0.25</AxisFeedrate>
+          <AxisFeedrate dataItemId="zf" timestamp="2017-08-08T12:12:26.114043Z" name="Zfrt" sequence="10649863">0.2483333</AxisFeedrate>
+          <AxisFeedrate dataItemId="zf" timestamp="2017-08-08T12:12:27.254666Z" name="Zfrt" sequence="10649869">0.25</AxisFeedrate>
+          <AxisFeedrate dataItemId="zf" timestamp="2017-08-08T12:12:28.379659Z" name="Zfrt" sequence="10649875">0.2483333</AxisFeedrate>
+          <AxisFeedrate dataItemId="zf" timestamp="2017-08-08T12:12:36.410926Z" name="Zfrt" sequence="10649911">0.25</AxisFeedrate>
+          <AxisFeedrate dataItemId="zf" timestamp="2017-08-08T12:12:37.551560Z" name="Zfrt" sequence="10649917">0.2483333</AxisFeedrate>
+          <AxisFeedrate dataItemId="zf" timestamp="2017-08-08T12:12:40.082812Z" name="Zfrt" sequence="10649928">0.25</AxisFeedrate>
+          <AxisFeedrate dataItemId="zf" timestamp="2017-08-08T12:12:41.207814Z" name="Zfrt" sequence="10649935">0.2483333</AxisFeedrate>
+          <Position dataItemId="zp" timestamp="2017-08-08T12:12:21.535944Z" name="Zabs" sequence="10649838" subType="ACTUAL">-183.81955</Position>
+          <Position dataItemId="zp" timestamp="2017-08-08T12:12:22.660895Z" name="Zabs" sequence="10649844" subType="ACTUAL">-184.10415</Position>
+          <Position dataItemId="zp" timestamp="2017-08-08T12:12:23.801519Z" name="Zabs" sequence="10649850" subType="ACTUAL">-184.38875</Position>
+          <Position dataItemId="zp" timestamp="2017-08-08T12:12:24.973415Z" name="Zabs" sequence="10649856" subType="ACTUAL">-184.66625</Position>
+          <Position dataItemId="zp" timestamp="2017-08-08T12:12:26.114043Z" name="Zabs" sequence="10649862" subType="ACTUAL">-184.95085</Position>
+          <Position dataItemId="zp" timestamp="2017-08-08T12:12:27.254666Z" name="Zabs" sequence="10649868" subType="ACTUAL">-185.22835</Position>
+          <Position dataItemId="zp" timestamp="2017-08-08T12:12:28.379659Z" name="Zabs" sequence="10649874" subType="ACTUAL">-185.5414</Position>
+          <Position dataItemId="zp" timestamp="2017-08-08T12:12:29.520285Z" name="Zabs" sequence="10649880" subType="ACTUAL">-185.826</Position>
+          <Position dataItemId="zp" timestamp="2017-08-08T12:12:30.692162Z" name="Zabs" sequence="10649885" subType="ACTUAL">-186.1035</Position>
+          <Position dataItemId="zp" timestamp="2017-08-08T12:12:31.832789Z" name="Zabs" sequence="10649890" subType="ACTUAL">-186.3881</Position>
+          <Position dataItemId="zp" timestamp="2017-08-08T12:12:32.957808Z" name="Zabs" sequence="10649895" subType="ACTUAL">-186.6656</Position>
+          <Position dataItemId="zp" timestamp="2017-08-08T12:12:34.098412Z" name="Zabs" sequence="10649900" subType="ACTUAL">-186.9502</Position>
+          <Position dataItemId="zp" timestamp="2017-08-08T12:12:35.270293Z" name="Zabs" sequence="10649905" subType="ACTUAL">-187.2633</Position>
+          <Position dataItemId="zp" timestamp="2017-08-08T12:12:36.410926Z" name="Zabs" sequence="10649910" subType="ACTUAL">-187.5408</Position>
+          <Position dataItemId="zp" timestamp="2017-08-08T12:12:37.551560Z" name="Zabs" sequence="10649916" subType="ACTUAL">-187.8254</Position>
+          <Position dataItemId="zp" timestamp="2017-08-08T12:12:38.676553Z" name="Zabs" sequence="10649922" subType="ACTUAL">-188.11</Position>
+          <Position dataItemId="zp" timestamp="2017-08-08T12:12:40.082812Z" name="Zabs" sequence="10649927" subType="ACTUAL">-188.45155</Position>
+          <Position dataItemId="zp" timestamp="2017-08-08T12:12:41.207814Z" name="Zabs" sequence="10649934" subType="ACTUAL">-188.72905</Position>
+        </Samples>
+      </ComponentStream>
+    </DeviceStream>
+  </Streams>
+</MTConnectStreams>
