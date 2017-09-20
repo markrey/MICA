@@ -101,16 +101,16 @@ def mtconnect(request):
     return render(request, 'mtconnect.xml')
 
 def current(request):
-    return render(request, 'current.xml')
+    return render(request, 'mtconnect.org/current.xml')
 
 def probe(request):
-    return render(request, 'probe.xml')
+    return render(request, 'mazak/probe.xml')
 
 def assets(request):
-    return render(request, 'assets.xml')
+    return render(request, 'mazak/assets.xml')
 
 def sample(request):
-    return render(request, 'sample.xml')
+    return render(request, 'mtconnect.org/sample.xml')
 
 def welcome (request):
     name = '吉野'

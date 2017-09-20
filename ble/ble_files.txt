@@ -1,0 +1,30 @@
+tar cvzf /root/blelib1.tar.gz /lib/udev/rules.d/50-bluetooth-hci-auto-poweron.rules /lib/arm-linux-gnueabihf/libudev.so.1.5.0 /lib/arm-linux-gnueabihf/libudev.so.1 /bin/hciconfig /etc/bluetooth/input.conf /etc/bluetooth/main.conf /etc/bluetooth/network.conf /etc/bluetooth/proximity.conf /etc/dbus-1/system.d/bluetooth.conf /etc/default/bluetooth /etc/init.d/bluetooth /lib/systemd/system/bluetooth.service /lib/udev/hid2hci /lib/udev/rules.d/97-hid2hci.rules /usr/bin/bccmd /usr/bin/bluetoothctl /usr/bin/btmon /usr/bin/ciptool /usr/bin/gatttool /usr/bin/hciattach /usr/bin/hcitool /usr/bin/l2ping /usr/bin/l2test /usr/bin/rctest /usr/bin/rfcomm /usr/bin/sdptool /usr/lib/bluetooth/bluetoothd /usr/sbin/bluetoothd /usr/share/dbus-1/system-services/org.bluez.service /usr/share/doc/bluez/NEWS.Debian.gz /usr/share/doc/bluez/README.Debian.gz /usr/share/doc/bluez/changelog.Debian.gz /usr/share/doc/bluez/changelog.gz /usr/share/doc/bluez/copyright /usr/share/man/man1/bccmd.1.gz /usr/share/man/man1/bluetoothctl.1.gz /usr/share/man/man1/btmon.1.gz /usr/share/man/man1/ciptool.1.gz /usr/share/man/man1/hciattach.1.gz /usr/share/man/man1/hciconfig.1.gz /usr/share/man/man1/hcitool.1.gz /usr/share/man/man1/hid2hci.1.gz /usr/share/man/man1/l2ping.1.gz /usr/share/man/man1/l2test.1.gz /usr/share/man/man1/rctest.1.gz /usr/share/man/man1/rfcomm.1.gz /usr/share/man/man1/sdptool.1.gz /usr/share/man/man8/bluetoothd.8.gz 
+
+tar cvzf /root/blelib2.tar.gz /usr/lib/arm-linux-gnueabihf/libgthread-2.0.so.0.4200.1 /usr/lib/arm-linux-gnueabihf/libgthread-2.0.so.0 /lib/arm-linux-gnueabihf/libglib-2.0.so.0 /lib/arm-linux-gnueabihf/libglib-2.0.so.0.4200.1 /lib/arm-linux-gnueabihf/libdbus-1.so.3 /lib/arm-linux-gnueabihf/libdbus-1.so.3.8.14 /lib/arm-linux-gnueabihf/libreadline.so.6 /lib/arm-linux-gnueabihf/libreadline.so.6.3 /lib/arm-linux-gnueabihf/libpcre.so.3 /lib/arm-linux-gnueabihf/libpcre.so.3.13.1 /lib/arm-linux-gnueabihf/libtinfo.so.5 /lib/arm-linux-gnueabihf/libtinfo.so.5.9 /lib/lsb/init-functions /bin/pidof /usr/share/man/man8/pidof.8.gz
+
+tar xvzf /root/blelib1.tar.gz -C /
+tar xvzf /root/blelib2.tar.gz -C /
+
+tar cvzf /root/dbus.tar.gz /var/lib/systemd/deb-systemd-helper-enabled/dbus-org.bluez.service /var/lib/dbus /var/lib/dpkg/info/libdbus-glib-1-2:armhf.postrm /var/lib/dpkg/info/python3-dbus.list /var/lib/dpkg/info/python3-dbus.postinst /var/lib/dpkg/info/libdbus-1-3:armhf.shlibs /var/lib/dpkg/info/python3-dbus.prerm /var/lib/dpkg/info/python3-dbus.md5sums /var/lib/dpkg/info/dbus.prerm /var/lib/dpkg/info/libdbus-glib-1-2:armhf.symbols /var/lib/dpkg/info/libdbus-1-3:armhf.list /var/lib/dpkg/info/libdbus-1-3:armhf.md5sums /var/lib/dpkg/info/dbus.postrm /var/lib/dpkg/info/libdbus-glib-1-2:armhf.postinst /var/lib/dpkg/info/dbus.md5sums /var/lib/dpkg/info/dbus.postinst /var/lib/dpkg/info/libdbus-1-3:armhf.postrm /var/lib/dpkg/info/dbus.list /var/lib/dpkg/info/dbus.conffiles /var/lib/dpkg/info/libdbus-glib-1-2:armhf.shlibs /var/lib/dpkg/info/libdbus-glib-1-2:armhf.list /var/lib/dpkg/info/libdbus-glib-1-2:armhf.md5sums /var/lib/dpkg/info/libdbus-1-3:armhf.symbols /var/lib/dpkg/info/libdbus-1-3:armhf.postinst /var/lib/dpkg/info/dbus.triggers /usr/bin/dbus-cleanup-sockets /usr/bin/dbus-monitor /usr/bin/dbus-uuidgen /usr/bin/dbus-daemon /usr/bin/dbus-run-session /usr/bin/dbus-send /usr/share/bug/dbus /usr/share/lintian/overrides/libdbus-glib-1-2 /usr/share/lintian/overrides/dbus /usr/share/lintian/overrides/libdbus-1-3 /usr/share/doc/libdbus-glib-1-2 /usr/share/doc/dbus /usr/share/doc/libdbus-1-3 /usr/share/doc/python3-dbus /usr/share/man/man1/dbus-cleanup-sockets.1.gz /usr/share/man/man1/dbus-monitor.1.gz /usr/share/man/man1/dbus-send.1.gz /usr/share/man/man1/dbus-uuidgen.1.gz /usr/share/man/man1/dbus-daemon.1.gz /usr/share/man/man1/dbus-run-session.1.gz /usr/share/dbus-1 /usr/lib/software-properties/software-properties-dbus /usr/lib/python3/dist-packages/dbus /usr/lib/python3/dist-packages/dbus/_dbus.py /usr/lib/python3/dist-packages/dbus/__pycache__/_dbus.cpython-34.pyc /usr/lib/python3/dist-packages/_dbus_glib_bindings.cpython-34m-arm-linux-gnueabihf.so /usr/lib/python3/dist-packages/softwareproperties/dbus /usr/lib/python3/dist-packages/_dbus_bindings.cpython-34m-arm-linux-gnueabihf.so /usr/lib/arm-linux-gnueabihf/libdbus-glib-1.so.2.2.2 /usr/lib/arm-linux-gnueabihf/libdbus-glib-1.so.2 /usr/lib/dbus-1.0 /usr/lib/dbus-1.0/dbus-daemon-launch-helper /lib/systemd/system/dbus-org.freedesktop.timedate1.service /lib/systemd/system/dbus-org.freedesktop.machine1.service /lib/systemd/system/multi-user.target.wants/dbus.service /lib/systemd/system/dbus.socket /lib/systemd/system/dbus-org.freedesktop.login1.service /lib/systemd/system/dbus-org.freedesktop.hostname1.service /lib/systemd/system/dbus-org.freedesktop.locale1.service /lib/systemd/system/sockets.target.wants/dbus.socket /lib/systemd/system/dbus.service /lib/systemd/system/dbus.target.wants /lib/systemd/system/dbus.target.wants/dbus.socket /var/lib/dpkg/info/libdbus-c++-1-0:armhf.shlibs /var/lib/dpkg/info/libdbus-c++-1-0:armhf.md5sums /var/lib/dpkg/info/libdbus-c++-1-0:armhf.list /var/lib/dpkg/info/libdbus-c++-1-0:armhf.postrm /var/lib/dpkg/info/libdbus-c++-1-0:armhf.postinst /usr/share/doc/libdbus-c++-1-0 /usr/lib/arm-linux-gnueabihf/libdbus-c++-ecore-1.so.0.0.0 /usr/lib/arm-linux-gnueabihf/libdbus-c++-1.so.0.0.0 /usr/lib/arm-linux-gnueabihf/libdbus-c++-glib-1.so.0 /usr/lib/arm-linux-gnueabihf/libdbus-c++-glib-1.so.0.0.0 /usr/lib/arm-linux-gnueabihf/libdbus-c++-1.so.0 /usr/lib/arm-linux-gnueabihf/libdbus-c++-ecore-1.so.0
+
+tar xvzf /root/dbus.tar.gz -C /
+
+
+./run/dbus
+./etc/default/dbus
+./etc/rc4.d/S02dbus
+./etc/rc5.d/S02dbus
+./etc/systemd/system/dbus-org.bluez.service
+./etc/init.d/dbus
+./etc/dbus-1
+./etc/rc3.d/S02dbus
+./etc/rc2.d/S02dbus
+
+
+device {
+        bdaddr  2C:20:0B:EA:63:FD
+        name    "Pav's T39";
+        key     nokey;
+        pin     "1234";
+      }
+      

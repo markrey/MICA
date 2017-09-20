@@ -37,6 +37,7 @@
 #include <fcntl.h>
 #include <mosquitto.h>
 #include <stdlib.h>
+#include <time.h>
 
 /*[ Definition for sample program ]*/
 #define	MAX_INTERFACE						20
@@ -124,28 +125,28 @@ char *keyfile       = NULL;
 int   keepalive     = 60;
 
 /**
- * Brokerとの接続成功時に実行されるcallback関数
+ * Broker�Ƃ̐ڑ��������Ɏ��s�����callback�֐�
  */
 void on_connect(struct mosquitto *mosq, void *obj, int result)
 {
-    printf("%s(%d)\n", __FUNCTION__, __LINE__);
+    //printf("%s(%d)\n", __FUNCTION__, __LINE__);
     mosquitto_publish(mosq, NULL, topic, strlen(pubBuf), pubBuf, 0, false);
 }
 
 /**
- * Brokerとの接続を切断した時に実行されるcallback関数
+ * Broker�Ƃ̐ڑ���ؒf�������Ɏ��s�����callback�֐�
  */
 void on_disconnect(struct mosquitto *mosq, void *obj, int rc)
 {
-    printf("%s(%d)\n", __FUNCTION__, __LINE__);
+    //printf("%s(%d)\n", __FUNCTION__, __LINE__);
 }
 
 /**
- * BrokerにMQTTメッセージ送信後に実行されるcallback関数
+ * Broker��MQTT���b�Z�[�W���M��Ɏ��s�����callback�֐�
  */
 static void on_publish(struct mosquitto *mosq, void *userdata, int mid)
 {
-    printf("%s(%d)\n", __FUNCTION__, __LINE__);
+    //printf("%s(%d)\n", __FUNCTION__, __LINE__);
     connect_desire = FALSE;
     mosquitto_disconnect(mosq);
 }
@@ -392,15 +393,13 @@ void user_callback_cyclic_link_scan_end( uint8_t ucGroupNumber )
 			/* Setting the sending RY data */
 			for ( j = 0; j < (int)( UserMasterParameter.Slave[i].usOccupiedStationNumber * ( CCIEF_BASIC_RX_RY_SIZE / sizeof( uint16_t ))); j ++ )
 			{
-				//*pusRY = usSendData_RY;
-				*pusRY = usSendData_RY++;
+				*pusRY = usSendData_RY;
 				pusRY ++;
 			}
 			/* Setting the sending RWw data */
 			for ( j = 0; j < (int)( UserMasterParameter.Slave[i].usOccupiedStationNumber * ( CCIEF_BASIC_RWW_RWR_SIZE / sizeof( uint16_t ))); j ++ )
 			{
-				//*pusRWw = usSendData_RWw;
-				*pusRWw = usSendData_RWw++;
+				*pusRWw = usSendData_RWw;
 				pusRWw ++;
 			}
 		}
@@ -629,6 +628,7 @@ void user_show_menu_top( void )
 /************************************************************************************/
 int user_input_check( void )
 {
+	int idx = 0;
 #ifndef __linux__
 	int	iKey;
 	static int iExit = USER_ERR_OK;
@@ -684,7 +684,9 @@ int user_input_check( void )
 					break;
 				case '5':	/* Show information of the slave */
 					user_show_slave_info();
-					publish_slave_info();
+					//for(idx=0;idx<10000;idx++){
+						publish_slave_info();
+					//}
 					break;
 				case '6':	/* Show information of the master */
 					user_show_master_info();
@@ -800,6 +802,8 @@ void publish_slave_info( void )
 	uint16_t usOccupiedStationNumber;
 	int iDataIndex, iDataSize;
 	int i, j, k, iStationNumber;
+	time_t now;
+	struct tm *ltm;
 
 	pParameter = &UserMasterParameter;
 	/* Getting the start pointer of RX */
@@ -892,11 +896,13 @@ void publish_slave_info( void )
 				sprintf(pubBuf, "%s \"%04X\"",pubBuf, *pusData );
 			}
 		}
+		time( &now );
+		ltm = localtime( &now );
+		sprintf(pubBuf, "%s\"datetime\":\"%04d/%02d/%02d %02d:%02d:%02d\"" ,pubBuf,ltm->tm_year + 1900, ltm->tm_mon + 1, ltm->tm_mday, ltm->tm_hour, ltm->tm_min, ltm->tm_sec );
 		sprintf(pubBuf, "%s]}" ,pubBuf);
 		iStationNumber += usOccupiedStationNumber;
 	}
 	strcpy(topic,"ccief");
-	printf("pubBuf[%s]\n",pubBuf);
 	mqttPublish();
 
 	return;

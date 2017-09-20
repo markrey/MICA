@@ -3,15 +3,22 @@ CCIEF-BASIC Master Sample Parameter,,
 ,,
 Group,,
 ID,DATA,COMMENT
-1,1,Total number of group
+1,2,Total number of group
 2,1,Number of group
 3,100,Group1 Cyclic transmission timeout
 4,2,Group1 Count of cyclic transmission timeout
 5,0,Group1 Constant link scan time
+6,2,Number of group
+7,100,Group2 Cyclic transmission timeout
+8,2,Group2 Count of cyclic transmission timeout
+9,0,Group2 Constant link scan time
 ,,
 Slave,,
 ID,DATA,COMMENT
-1,1,Total number of slave
-2,192.168.0.91,Slave1 IP address
+1,2,Total number of slave
+2,192.168.10.52,Slave1 IP address
 3,1,Slave1 Number of occupied stations
 4,1,Slave1 Number of group
+5,192.168.10.196,Slave2 IP address
+6,2,Slave2 Number of occupied stations
+7,1,Slave2 Number of group

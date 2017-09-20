@@ -1,8 +1,8 @@
 /********************************************************************************/
 /*	Object Name		:Sample of user program for CCIEF-BASIC Master				*/
 /*	File Name		:CCIEF_BASIC_MASTER.c										*/
-/*	Data			:2016/11/01													*/
-/*	Version			:1.01														*/
+/*	Data			:2017/03/21													*/
+/*	Version			:2.00.0														*/
 /*																				*/
 /*	COPYRIGHT (C) 2016 CC-Link Partner Association ALL RIGHTS RESERVED			*/
 /********************************************************************************/
@@ -12,19 +12,21 @@
 #include "CCIEF_BASIC_SLAVES.h"
 #include "SOCKET.h"
 #include "TIMER.h"
+
 /************************************************************************************/
 /* The following is an user defined main program. This main program is one of a		*/
-/* sample in the Linux. Please rewrite if necessary.								*/
+/* sample in the Windows OS and Intel x86 CPU. Please rewrite if necessary.			*/
+/* This main program is one of a sample in the Linux. Please rewrite if necessary.	*/
 /*																					*/
 /* This sample program for CCIEF-BASIC Slave Application.							*/
 /*																					*/
 /************************************************************************************/
 
-#ifndef __linux__
+#ifdef _WIN32
 #include <WinSock2.h>
 #include <Ws2tcpip.h>
 #include <windows.h>
-#else
+#elif __linux__
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <string.h>
@@ -35,8 +37,8 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 
-#ifndef __linux__
-#else
+#ifdef _WIN32
+#elif __linux__
 #define INVALID_SOCKET		-1
 #endif
 
@@ -63,6 +65,7 @@ typedef struct
 	int64_t								llLinkScanTimeMaximum;						/* Maximum the link scan time[us] */
 } CCIEF_BASIC_MASTER_GROUP_INFO;
 
+#ifdef _WIN32
 typedef struct 
 {
 	uint32_t						ulIpAddress;							/* Ip address */
@@ -76,11 +79,27 @@ typedef struct
 	uint16_t						usUnitInfo;								/* Information of the unit */
 	int								iErrCode;								/* Error code of the master */
 } CCIEF_BASIC_MASTER_CYCLIC_DATA_INFO;
+#elif __linux__
+typedef struct 
+{
+	uint32_t						ulIpAddress;							/* Ip address */
+	uint32_t						ulSubnetMask;							/* Slave subnet mask */
+	CCIEF_BASIC_MASTER_PARAMETER	Parameter;								/* Parameter */
+	int								iGroupTotalNumber;						/* Total number of the groups */
+	CCIEF_BASIC_MASTER_GROUP_INFO	*pGroup[CCIEF_BASIC_MAX_GROUP_NUMBER];	/* Pointer of information of the groups */
+	uint32_t						ulId;									/* Id number */
+	uint32_t						ulDirectedIpAddress;					/* Directed broadcast ip address */
+	int								iOccupiedStationNumberTotal;			/* Total number of the occupied station number */
+	uint16_t						usParameterId;							/* Parameter id */
+	uint16_t						usUnitInfo;								/* Information of the unit */
+	int								iErrCode;								/* Error code of the master */
+} CCIEF_BASIC_MASTER_CYCLIC_DATA_INFO;
+#endif
 
 /* Definition of external variable of sample program */
-#ifndef __linux__
+#ifdef _WIN32
 static SOCKET sock;		/* sokect of CCIEF-BASIC Master */
-#else
+#elif __linux__
 static int sock;		/* sokect of CCIEF-BASIC Master */
 #endif
 
@@ -169,6 +188,10 @@ int ccief_basic_master_initialize( uint32_t ulIpAddress, uint32_t ulSubnetMask, 
 	/* Setting the master information */
 	Master.ulIpAddress = ulIpAddress;
 	Master.ulId = ulIpAddress;
+#ifdef _WIN32
+#elif __linux__
+	Master.ulSubnetMask = ulSubnetMask;
+#endif
 	Master.ulDirectedIpAddress = ((ulIpAddress & ulSubnetMask) | ~ulSubnetMask);
 
 	/* Check the Parameter */
@@ -590,9 +613,9 @@ int ccief_basic_master_check_parameter( CCIEF_BASIC_MASTER_PARAMETER *pParameter
 		{
 			if (( i != j ) && ( pParameter->Slave[i].ulIpAddress == pParameter->Slave[j].ulIpAddress ))
 			{
-#ifndef __linux__
+#ifdef _WIN32
 				addr.S_un.S_addr = htonl(pParameter->Slave[j].ulIpAddress);
-#else
+#elif __linux__
 				addr.s_addr = htonl(pParameter->Slave[j].ulIpAddress);	
 #endif
 				inet_ntop(AF_INET, &addr, Ipaddr, sizeof(Ipaddr) );
@@ -649,17 +672,24 @@ int ccief_basic_master_check_parameter( CCIEF_BASIC_MASTER_PARAMETER *pParameter
 
 /************************************************************************************/
 /* This is an user defined function for receiving packet. The following is one of a	*/
-/* sample in the Linux. Please rewrite if necessary.								*/
+/* sample in the Windows OS. Please rewrite if necessary.							*/
+/* The following is one of a sample in the Linux. Please rewrite if necessary.		*/
 /************************************************************************************/
 int ccief_basic_master_recv( void )
 {
 	uint32_t		ulRecvAddr;
 	uint16_t		usRecvPortNumber;
 	struct in_addr	addr;
-	SLMP_INFO		source = { 0 };	/* SLMP Infomation for received packet */
-	int				iErrCode = 0;
+	SLMP_INFO		source;	/* SLMP Infomation for received packet */
+	int				iErrCode;
 	int				i;
 	char			Ipaddr[16];
+#ifdef _WIN32
+#elif __linux__
+	uint32_t		ulMyNetAddress;
+	uint32_t		ulOtherNetAddress;
+#endif
+	uint16_t		usPacketCount = 0;	/* Number of processed packets */
 
 	/* Check the socket */
 	if ( sock == INVALID_SOCKET ) {
@@ -667,75 +697,97 @@ int ccief_basic_master_recv( void )
 	}
 
 	/* Packet receiving */
-	iErrCode = socket_recv( sock, aucRecvPacket, sizeof( aucRecvPacket ), &ulRecvAddr, &usRecvPortNumber );
-	if ( iErrCode != SOCKET_ERR_OK )
+	while ( usPacketCount <= CCIEF_BASIC_PACKET_COUNT_MAX )
 	{
-		if ( iErrCode == SOCKET_ERR_NO_RECEIVABLE )
+		memset( &source, 0, sizeof(SLMP_INFO) );
+		iErrCode = 0;
+
+		iErrCode = socket_recv( sock, aucRecvPacket, sizeof( aucRecvPacket ), &ulRecvAddr, &usRecvPortNumber );
+		if ( iErrCode != SOCKET_ERR_OK )
+		{
+			if ( iErrCode == SOCKET_ERR_NO_RECEIVABLE )
+			{
+				return CCIEF_BASIC_MASTER_ERR_OK;
+			}
+			else
+			{
+				return iErrCode;
+			}
+		}
+
+#ifdef _WIN32
+#elif __linux__
+		ulMyNetAddress = ( Master.ulIpAddress & Master.ulSubnetMask );
+		ulOtherNetAddress = ( ulRecvAddr & Master.ulSubnetMask );
+
+		/* Other network broadcast break*/
+		if( ulMyNetAddress != ulOtherNetAddress )
 		{
 			return CCIEF_BASIC_MASTER_ERR_OK;
 		}
-		else
-		{
-			return iErrCode;
-		}
-	}
-
-	/* Sets the SLMP Information for receiving. */
-	source.pucData = aucRecvData;
-
-	/* Get the SLMP Information from the request packet using the SLMP library. */
-	iErrCode = SLMP_GetSlmpInfo( &source, aucRecvPacket );
-	if ( iErrCode != SLMP_ERR_OK )
-	{
-		/* Invalid SLMP Frame. */
-		printf( "ERR : Invalid SLMP frame received!\n" );
-		return CCIEF_BASIC_MASTER_ERR_OK;
-	}
-
-	/* Check the SLMP frame. */
-	if ( source.ulFrameType == SLMP_FTYPE_BIN_RES_ST )
-	{
-		/* Response of the SLMP frame */
-		if ( source.usEndCode == SLMP_ERR_OK )
-		{
-			/* Receiving response of the cyclic data. */
-			ccief_basic_master_recv_cyclic_data_response( source.pucData );
-		}
-		else
-		{
-#ifndef __linux__
-			addr.S_un.S_addr = htonl(ulRecvAddr);
-#else
-			addr.s_addr = htonl(ulRecvAddr);	
 #endif
-			inet_ntop(AF_INET, &addr, Ipaddr, sizeof(Ipaddr) );
-			printf( "ERR : EndCode %04X from %s!\n", source.usEndCode, Ipaddr );
-		}
-	}
-	else
-	{
-		/* Request of the SLMP frame */
-		if ( source.usCommand == SLMP_COMMAND_CYCLIC_DATA )
+
+
+		/* Sets the SLMP Information for receiving. */
+		source.pucData = aucRecvData;
+
+		/* Get the SLMP Information from the request packet using the SLMP library. */
+		iErrCode = SLMP_GetSlmpInfo( &source, aucRecvPacket );
+		if ( iErrCode != SLMP_ERR_OK )
 		{
-			/* Cyclic Data(0E70h) */
-			for ( i = 0; i < Master.iGroupTotalNumber; i ++ )
+			/* Invalid SLMP Frame. */
+			printf( "ERR : Invalid SLMP frame received!\n" );
+			return CCIEF_BASIC_MASTER_ERR_OK;
+		}
+
+		/* Check the SLMP frame. */
+		if ( source.ulFrameType == SLMP_FTYPE_BIN_RES_ST )
+		{
+			/* Response of the SLMP frame */
+			if ( source.usEndCode == SLMP_ERR_OK )
 			{
-				/* Execute the state of the master */
-				ccief_basic_master_execute_state( Master.pGroup[i], CCIEF_BASIC_EVENT_MASTER_CYCLIC_DATA_RECV );
+				/* Receiving response of the cyclic data. */
+				ccief_basic_master_recv_cyclic_data_response( source.pucData );
+			}
+			else
+			{
+#ifdef _WIN32
+				addr.S_un.S_addr = htonl(ulRecvAddr);
+#elif __linux__
+				addr.s_addr = htonl(ulRecvAddr);	
+#endif
+				inet_ntop(AF_INET, &addr, Ipaddr, sizeof(Ipaddr) );
+				printf( "ERR : EndCode %04X from %s!\n", source.usEndCode, Ipaddr );
 			}
 		}
-	}
+		else
+		{
+			/* Request of the SLMP frame */
+			if ( source.usCommand == SLMP_COMMAND_CYCLIC_DATA )
+			{
+				/* Cyclic Data(0E70h) */
+				for ( i = 0; i < Master.iGroupTotalNumber; i ++ )
+				{
+					/* Execute the state of the master */
+					ccief_basic_master_execute_state( Master.pGroup[i], CCIEF_BASIC_EVENT_MASTER_CYCLIC_DATA_RECV );
+				}
+			}
+		}
 
-	/* Check the error code of the master duplication */
-	if ( Master.iErrCode == CCIEF_BASIC_MASTER_ERR_MASTER_DUPLICATION )
-	{
-		return CCIEF_BASIC_MASTER_ERR_MASTER_DUPLICATION;
-	}
-	
-	/* Check the error code of the slave duplication */
-	if ( Master.iErrCode == CCIEF_BASIC_MASTER_ERR_SLAVE_DUPLICATION )
-	{
-		return CCIEF_BASIC_MASTER_ERR_SLAVE_DUPLICATION;
+		/* Check the error code of the master duplication */
+		if ( Master.iErrCode == CCIEF_BASIC_MASTER_ERR_MASTER_DUPLICATION )
+		{
+			return CCIEF_BASIC_MASTER_ERR_MASTER_DUPLICATION;
+		}
+		
+		/* Check the error code of the slave duplication */
+		if ( Master.iErrCode == CCIEF_BASIC_MASTER_ERR_SLAVE_DUPLICATION )
+		{
+			return CCIEF_BASIC_MASTER_ERR_SLAVE_DUPLICATION;
+		}
+		
+		/* Increment the number of processed packets */
+		usPacketCount++;
 	}
 
 	return CCIEF_BASIC_MASTER_ERR_OK;

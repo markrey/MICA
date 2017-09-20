@@ -197,6 +197,11 @@ void makeHistoryData();
 void MovingAverage(int addr);
 int ReadIni();
 
+double get_dtime(void){
+  struct timeval tv;
+  gettimeofday(&tv, NULL);
+  return ((double)(tv.tv_sec) + (double)(tv.tv_usec) * 0.001 * 0.001);
+}
 //--------------------- 
 
 int main(int argc,char *argv[]) {
@@ -223,8 +228,12 @@ int main(int argc,char *argv[]) {
 	int tempOffset = TEMP_OFFSET;
 	int preMistLv[NODESIZE] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
-	time_t timeStart;
-	time_t timeCurrent;
+	//time_t timeStart;
+	//time_t timeCurrent;
+
+	double timeStart;
+	double timeCurrent;
+
 	long l;
     FILE *fp;
 	char tmp[5];
@@ -361,8 +370,11 @@ int main(int argc,char *argv[]) {
 
 	do{
 		if(((flgNodeCheck==1) || ((flgNodeCheck==0) && (validAddr[addr]>-1))) && (enableAddr[addr]==1)){
-			time(&timeStart);
-			time(&timeCurrent);
+			//time(&timeStart);
+			//time(&timeCurrent);
+			timeStart = get_dtime();
+			timeCurrent = get_dtime();
+
 			for(readIdx=0;readIdx<BUFSIZE;readIdx++){
 				bufRead[readIdx] = 0x00;
 				data[readIdx] = 0;
@@ -386,9 +398,11 @@ int main(int argc,char *argv[]) {
 			
 			if (isDebug) printf("read[");
 			do{
-				time(&timeCurrent);
 				
-				if(difftime(timeCurrent,timeStart)>1){
+				//time(&timeCurrent);
+				timeCurrent = get_dtime();
+				
+				if((timeCurrent - timeStart)>0.2){
 					recvFlg=0;
 					if(recvDataList[addr].errCnt[ERRITEM_TIMEOUT]<SHRT_MAX) recvDataList[addr].errCnt[ERRITEM_TIMEOUT]++;
 					if (isDebug) printf("ERRITEM_TIMEOUT:%d",recvDataList[addr].errCnt[ERRITEM_TIMEOUT]);
@@ -501,7 +515,7 @@ int main(int argc,char *argv[]) {
 						recvFlg=2;
 					}
 					readIdx++;
-					if(difftime(timeCurrent,timeStart)>1){
+					if((timeCurrent - timeStart)>0.2){
 						recvFlg=0;
 					}
 				}

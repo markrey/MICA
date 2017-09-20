@@ -5,4 +5,7 @@ apt-get install libmosquitto-dev
 gcc -W -g MDSX_mqttPub.c -o MDSX_mqttPub -lmosquitto
 
 
+tar czvf mdsx.tar.gz /root/MDSX_serial /root/MDSX_makeFile /etc/rc.local
+
+tar xvzf ./mdsx.tar.gz -C /
 

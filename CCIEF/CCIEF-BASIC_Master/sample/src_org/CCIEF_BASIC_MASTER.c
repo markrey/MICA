@@ -12,6 +12,7 @@
 #include "CCIEF_BASIC_SLAVES.h"
 #include "SOCKET.h"
 #include "TIMER.h"
+
 /************************************************************************************/
 /* The following is an user defined main program. This main program is one of a		*/
 /* sample in the Linux. Please rewrite if necessary.								*/
@@ -31,9 +32,6 @@
 #endif
 #include <stdio.h>
 #include <time.h>
-#include <sys/types.h>
-#include <sys/ipc.h>
-#include <sys/shm.h>
 
 #ifndef __linux__
 #else
@@ -93,8 +91,6 @@ static unsigned short	ausRX[(CCIEF_BASIC_RX_RY_SIZE / sizeof( uint16_t )) * CCIE
 static unsigned short	ausRY[(CCIEF_BASIC_RX_RY_SIZE / sizeof( uint16_t )) * CCIEF_BASIC_MAX_SLAVE_NUMBER];	/* RY for the master */
 static unsigned short	ausRWw[(CCIEF_BASIC_RWW_RWR_SIZE / sizeof( uint16_t )) * CCIEF_BASIC_MAX_SLAVE_NUMBER];	/* RWw for the master */
 static unsigned short	ausRWr[(CCIEF_BASIC_RWW_RWR_SIZE / sizeof( uint16_t )) * CCIEF_BASIC_MAX_SLAVE_NUMBER];	/* RWr for the master */
-unsigned short *pointerRY;
-unsigned short *pointerRWw;
 
 static CCIEF_BASIC_MASTER_CALLBACK_CYCLIC_LINK_SCAN_END	pUserLinkScanEndFunc = NULL;	/* Callback function for end of the link scan */
 
@@ -129,32 +125,6 @@ int ccief_basic_master_initialize( uint32_t ulIpAddress, uint32_t ulSubnetMask, 
 	int i, j, iGroupCheck;
 	int iErrCode;
 
-	int key;
-	int id;
-
-	key = ftok("/tmp/shm", 2); 
-	printf("key:%d",key);
-	if((id=shmget(key,512,IPC_CREAT|0666))==-1){
-        perror("shmget");
-        exit(-1);
-    }
-    printf("ã§óLÉÅÉÇÉäID=%d\n",id);
-    if((pointerRY=shmat(id,0,0))==-1){
-        perror("shmat");
-    }
-
-	key = ftok("/tmp/shm", 1); 
-	printf("key:%d",key);
-	if((id=shmget(key,512,IPC_CREAT|0666))==-1){
-        perror("shmget");
-        exit(-1);
-    }
-    printf("ã§óLÉÅÉÇÉäID=%d\n",id);
-    if((pointerRWw=shmat(id,0,0))==-1){
-        perror("shmat");
-    }
-
-	
 	/* Initialize of the master */
 	memset( &Master, 0, sizeof( Master ) );
 	memset( &Group, 0, sizeof( Group ) );
@@ -1401,8 +1371,6 @@ void ccief_basic_master_recv_cyclic_data_response( uint8_t *pucData )
 						{
 							Master.iErrCode = CCIEF_BASIC_MASTER_ERR_SLAVE_DUPLICATION;
 						}
-						memcpy(pointerRY,ausRY,512);
-						memcpy(pointerRWw,ausRWw,512);
 					}
 				}
 			}

@@ -124,7 +124,7 @@ char *keyfile       = NULL;
 int   keepalive     = 60;
 
 /**
- * Brokerとの接続成功時に実行されるcallback関数
+ * Broker�Ƃ̐ڑ��������Ɏ��s�����callback�֐�
  */
 void on_connect(struct mosquitto *mosq, void *obj, int result)
 {
@@ -133,7 +133,7 @@ void on_connect(struct mosquitto *mosq, void *obj, int result)
 }
 
 /**
- * Brokerとの接続を切断した時に実行されるcallback関数
+ * Broker�Ƃ̐ڑ���ؒf�������Ɏ��s�����callback�֐�
  */
 void on_disconnect(struct mosquitto *mosq, void *obj, int rc)
 {
@@ -141,7 +141,7 @@ void on_disconnect(struct mosquitto *mosq, void *obj, int rc)
 }
 
 /**
- * BrokerにMQTTメッセージ送信後に実行されるcallback関数
+ * Broker��MQTT���b�Z�[�W���M��Ɏ��s�����callback�֐�
  */
 static void on_publish(struct mosquitto *mosq, void *userdata, int mid)
 {
@@ -392,15 +392,13 @@ void user_callback_cyclic_link_scan_end( uint8_t ucGroupNumber )
 			/* Setting the sending RY data */
 			for ( j = 0; j < (int)( UserMasterParameter.Slave[i].usOccupiedStationNumber * ( CCIEF_BASIC_RX_RY_SIZE / sizeof( uint16_t ))); j ++ )
 			{
-				//*pusRY = usSendData_RY;
-				*pusRY = usSendData_RY++;
+				*pusRY = usSendData_RY;
 				pusRY ++;
 			}
 			/* Setting the sending RWw data */
 			for ( j = 0; j < (int)( UserMasterParameter.Slave[i].usOccupiedStationNumber * ( CCIEF_BASIC_RWW_RWR_SIZE / sizeof( uint16_t ))); j ++ )
 			{
-				//*pusRWw = usSendData_RWw;
-				*pusRWw = usSendData_RWw++;
+				*pusRWw = usSendData_RWw;
 				pusRWw ++;
 			}
 		}
@@ -896,7 +894,6 @@ void publish_slave_info( void )
 		iStationNumber += usOccupiedStationNumber;
 	}
 	strcpy(topic,"ccief");
-	printf("pubBuf[%s]\n",pubBuf);
 	mqttPublish();
 
 	return;

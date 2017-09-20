@@ -1,0 +1,301 @@
+#!/bin/sh
+
+NAME=$(basename $0)
+
+case "$1" in
+	start)
+		echo " Starting system configuration"
+
+		### READ CONFIGURATION ###
+
+		# read system configuration
+		SYSTEM_CONFIG=$(cfgmgr --get system)
+
+		if [ $? -ne 0 ]; then
+			echo "WARNING: system configuration not read correctly, fallback to recovery settings"
+
+			EPC="00-00-00-00-00-00-00-00-00-00-00-00"
+
+			VERSION="2"
+
+			HOSTNAME="MICA"
+
+			NET_MAC_ADDRESS="00:00:00:00:00:00"
+
+			NET_IPv6_MODE="0"
+			NET_IPv6_ADDRESS="::"
+			NET_IPv6_PREFIX="64"
+			NET_IPv6_GATEWAY="::"
+
+			NET_IPv4_MODE="1"
+			NET_IPv4_ADDRESS="0.0.0.0"
+			NET_IPv4_PREFIX="12"
+			NET_IPv4_GATEWAY="0.0.0.0"
+
+			NET_DNS_MODE="0"
+			NET_DNS_ADDRESS="0.0.0.0"
+
+			EXT_IPv4_MODE="1"
+			EXT_MAC_ADDRESS="00:00:00:00:00:00"
+			EXT_IPv4_ADDRESS="0.0.0.0"
+			EXT_IPv4_PREFIX="12"
+			EXT_IPv4_GATEWAY="0.0.0.0"
+
+			EXT_IPv6_MODE="0"
+			EXT_IPv6_ADDRESS="::"
+			EXT_IPv6_PREFIX="64"
+			EXT_IPv6_GATEWAY="::"
+		else
+			EPC=$(echo "$SYSTEM_CONFIG" | jq -r .epc | grep -E -x '[a-zA-Z0-9-]+')
+
+			VERSION=$(echo "$SYSTEM_CONFIG" | jq -r .version | grep -E -x '[0-9]+')
+
+			HOSTNAME=$(echo "$SYSTEM_CONFIG" | jq -r .hostname | grep -E -x '[a-zA-Z0-9.-]+')
+
+			NET_MAC_ADDRESS=$(echo "$SYSTEM_CONFIG" | jq -r .mac | grep -E -x '([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}')
+
+			NET_IPv6_MODE=$(echo "$SYSTEM_CONFIG" | jq -r .ipv6Mode | grep -E -x '[0-9]+')
+			NET_IPv6_ADDRESS=$(echo "$SYSTEM_CONFIG" | jq -r .ipv6Address | grep -E -x '[a-z0-9:]+')
+			NET_IPv6_PREFIX=$(echo "$SYSTEM_CONFIG" | jq -r .ipv6Prefix | grep -E -x '[0-9]+')
+			NET_IPv6_GATEWAY=$(echo "$SYSTEM_CONFIG" | jq -r .ipv6Gateway | grep -E -x '[a-z0-9:]+')
+
+			NET_IPv4_MODE=$(echo "$SYSTEM_CONFIG" | jq -r .ipv4Mode | grep -E -x '[0-9]+')
+			NET_IPv4_ADDRESS=$(echo "$SYSTEM_CONFIG" | jq -r .ipv4Address | grep -E -x '[0-9.]+')
+			NET_IPv4_PREFIX=$(echo "$SYSTEM_CONFIG" | jq -r .ipv4Prefix | grep -E -x '[0-9]+')
+			NET_IPv4_GATEWAY=$(echo "$SYSTEM_CONFIG" | jq -r .ipv4Gateway | grep -E -x '[0-9.]+')
+
+			NET_DNS_MODE=$(echo "$SYSTEM_CONFIG" | jq -r .dnsMode | grep -E -x '[0-9]+')
+			NET_DNS_ADDRESS=$(echo "$SYSTEM_CONFIG" | jq -r .dnsAddress | grep -E -x '[a-z0-9:.]+')
+			
+			EXT_MAC_ADDRESS=$(echo "$SYSTEM_CONFIG" | jq -r .custom | jq -r .mac | grep -E -x '([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}')
+
+			EXT_IPv4_MODE=$(echo "$SYSTEM_CONFIG" | jq -r .custom | jq -r .ipv4Mode | grep -E -x '[0-9]+')
+			EXT_IPv4_ADDRESS=$(echo "$SYSTEM_CONFIG" | jq -r .custom | jq -r .ipv4Address | grep -E -x '[0-9.]+')
+			EXT_IPv4_PREFIX=$(echo "$SYSTEM_CONFIG" | jq -r .custom | jq -r .ipv4Prefix | grep -E -x '[0-9]+')
+			EXT_IPv4_GATEWAY=$(echo "$SYSTEM_CONFIG" | jq -r .custom | jq -r .ipv4Gateway | grep -E -x '[0-9.]+')
+
+			EXT_DNS_MODE=$(echo "$SYSTEM_CONFIG" | jq -r .custom | jq -r .dnsMode | grep -E -x '[0-9]+')
+			EXT_DNS_ADDRESS=$(echo "$SYSTEM_CONFIG" | jq -r .custom | jq -r .dnsAddress | grep -E -x '[a-z0-9:.]+')
+
+			EXT_IPv6_MODE="0"
+			EXT_IPv6_ADDRESS="::"
+			EXT_IPv6_PREFIX="64"
+			EXT_IPv6_GATEWAY="::"
+		fi
+		echo "$EXT_MAC_ADDRESS"
+
+
+		# generate IPv6 local addresses from EPC
+
+		OUI="000a:ed"
+		INTERFACE_ID="$OUI"
+
+		index=0
+		for i in $(echo "$EPC" | tr "-" "\n")
+		do
+				index=$((index+1))
+				# cut first 72 bit from EPC (GID-96)
+				if [ $index -le 9 ]; then continue; fi
+				if [ $index -eq 10 ]; then INTERFACE_ID="${INTERFACE_ID}${i:0:2}"; continue; fi
+				if [ $(($index % 2)) == 1 ]; then INTERFACE_ID="${INTERFACE_ID}:"; fi
+				INTERFACE_ID="${INTERFACE_ID}${i}"
+		done
+
+		LOCAL_SUFFIX="0000"
+		INTERFACE_ID="${INTERFACE_ID}:${LOCAL_SUFFIX}"
+
+		NET_IPv6_LINK_LOCAL_ADDRESS="fe80:0000:0000:0000:${INTERFACE_ID}"
+		NET_IPv6_LINK_LOCAL_PREFIX=64
+
+		GLOBAL_ID="96:8d76:d432"
+		SUBNET_ID="0000"
+		NET_IPv6_UNIQUE_LOCAL_ADDRESS="fd${GLOBAL_ID}:${SUBNET_ID}:${INTERFACE_ID}"
+		NET_IPv6_UNIQUE_LOCAL_PREFIX=64
+
+		### SET CONFIGURATION ###
+
+		# clean config files
+		> /etc/hosts.d/20lo_dyn
+		> /etc/resolv.d/10br0
+
+		# hostname
+		if [ "$HOSTNAME" ]; then
+			hostname "$HOSTNAME"
+			HOSTS="127.0.0.1 $HOSTNAME"
+			HOSTS="$HOSTS\n::1 $HOSTNAME"
+			echo -e "$HOSTS" > /etc/hosts.d/20lo_dyn
+		fi
+
+		# domain
+		#if [ "$HOSTNAME" ] && [ "$DOMAIN" ]; then
+		#	hostname "${HOSTNAME}.${DOMAIN}"
+		#
+		#	HOSTS="127.0.0.1 ${HOSTNAME}.${DOMAIN}"
+		#	HOSTS="$HOSTS\n::1 ${HOSTNAME}.${DOMAIN}"
+		#	echo -e "$HOSTS" >> /etc/hosts.d/20lo_dyn
+		#
+		#	RESOLV_CONF="domain $DOMAIN"
+		#	echo "$RESOLV_CONF" >> /etc/resolv.d/10br0
+		#fi
+
+		# setup loopback interface
+		ip link set dev lo up
+
+		# setup bridge
+		ip link add name br0 type bridge
+		ip link add name br1 type bridge
+
+		/sbin/nameif eno1 "driver=smsc95xx bus=usb-musb-hdrc.1.auto-1.2"
+		/sbin/nameif eth0 "driver=smsc95xx bus=usb-musb-hdrc.1.auto-1.2"
+
+		ip link show eno1 &>/dev/null
+		if [ $? -eq 0 ]; then
+			ip link set dev eno1 address "$NET_MAC_ADDRESS"
+			ip link set eno1 master br0
+			ip link set eno1 up
+		fi
+
+		ip link set br0 up
+
+		#ip link show eth0 &>/dev/null
+		#if [ $? -eq 0 ]; then
+			ip link set dev eth0 address "$EXT_MAC_ADDRESS"
+			ip link set eth0 master br1
+			ip link set eth0 up
+		#fi
+
+		ip link set br1 up
+
+		# add special IPv6 link local address
+		if [ "$NET_IPv6_LINK_LOCAL_ADDRESS" ]; then ip -6 addr add "$NET_IPv6_LINK_LOCAL_ADDRESS"/"$NET_IPv6_LINK_LOCAL_PREFIX" dev br0; fi
+
+		# add IPv6 unique local address
+		if [ "$NET_IPv6_UNIQUE_LOCAL_ADDRESS" ]; then ip -6 addr add "$NET_IPv6_UNIQUE_LOCAL_ADDRESS"/"$NET_IPv6_UNIQUE_LOCAL_PREFIX" dev br0; fi
+
+		# add special IPv6 link local address
+		if [ "$NET_IPv6_LINK_LOCAL_ADDRESS" ]; then ip -6 addr add "$NET_IPv6_LINK_LOCAL_ADDRESS"/"$NET_IPv6_LINK_LOCAL_PREFIX" dev br1; fi
+
+		# add IPv6 unique local address
+		if [ "$NET_IPv6_UNIQUE_LOCAL_ADDRESS" ]; then ip -6 addr add "$NET_IPv6_UNIQUE_LOCAL_ADDRESS"/"$NET_IPv6_UNIQUE_LOCAL_PREFIX" dev br1; fi
+
+		# IPv6
+		if [ "$NET_IPv6_MODE" == '0' ]; then
+
+			# dns
+			if [ "$NET_DNS_MODE" == '6' ]; then
+					RESOLV_CONF="nameserver $NET_DNS_ADDRESS"
+					echo "$RESOLV_CONF" >> /etc/resolv.d/10br0
+			fi
+
+		elif [ "$NET_IPv6_MODE" == '2' ]; then
+
+			# add address
+			ip -6 addr add "$NET_IPv6_ADDRESS"/"$NET_IPv6_PREFIX" dev br0
+
+			# set default gateway
+			if [ "$NET_IPv6_GATEWAY" != "::" ]; then
+				ip -6 route add default via "$NET_IPv6_GATEWAY"
+			fi
+
+			# dns
+			if [ "$NET_DNS_MODE" == '6' ]; then
+				RESOLV_CONF="nameserver $NET_DNS_ADDRESS"
+				echo "$RESOLV_CONF" >> /etc/resolv.d/10br0
+			fi
+
+		elif [ "$NET_IPv6_MODE" == '1' ]; then
+
+			# start dhcpv6 client
+			udhcpc6 -i br0 -b -S -s /usr/share/udhcpc/default6.script -x hostname:"$HOSTNAME" >/dev/null 2>&1 &
+		fi
+
+		# IPv4
+		if [ "$NET_IPv4_MODE" == '2' ]; then
+
+			# add address
+			ip addr add "$NET_IPv4_ADDRESS"/"$NET_IPv4_PREFIX" brd + dev br0
+
+			# set default gateway
+			echo "NET_IPv4_GATEWAY : $NET_IPv4_GATEWAY"
+			if [ "$NET_IPv4_GATEWAY" != "0.0.0.0" ]; then
+				ip route add default via "$NET_IPv4_GATEWAY"
+			fi
+
+			# dns
+			if [ "$NET_DNS_MODE" == '4' ]; then
+				RESOLV_CONF="nameserver $NET_DNS_ADDRESS"
+				echo  "$RESOLV_CONF" >> /etc/resolv.d/10br0
+				cat  /etc/resolv.d/10br0
+			fi
+		elif [ "$NET_IPv4_MODE" == '1' ]; then
+			# start dhcp client
+			udhcpc -i br0 -b -S -p /run/udhcpc.pid -s /usr/share/udhcpc/default.script -x hostname:"$HOSTNAME" >/dev/null 2>&1 &
+
+		fi
+
+		if [ "$EXT_IPv4_MODE" == '2' ]; then
+
+			# add address
+			ip addr add "$EXT_IPv4_ADDRESS"/"$EXT_IPv4_PREFIX" brd + dev br1
+
+			# set default gateway
+			if [ "$EXT_IPv4_GATEWAY" != "0.0.0.0" ]; then
+				ip route add default via "$EXT_IPv4_GATEWAY"
+			fi
+
+			# dns
+			if [ "$EXT_DNS_MODE" == '4' ]; then
+				RESOLV_CONF="nameserver $EXT_DNS_ADDRESS"
+				echo  "$RESOLV_CONF" >> /etc/resolv.d/10br1
+			fi
+		elif [ "$EXT_IPv4_MODE" == '1' ]; then
+
+			# start dhcp client
+			udhcpc -i br1 -b -S -p /run/udhcpc.pid -s /usr/share/udhcpc/lancom.script -x hostname:"$HOSTNAME" >/dev/null 2>&1 &
+		fi
+
+		# generate config files
+		awk 'FNR==1{print ""}1' /etc/hosts.d/* > /etc/hosts
+		awk 'FNR==1{print ""}1' /etc/resolv.d/* > /etc/resolv.conf
+
+		# wait for ethernet device to get up
+		TIMEOUT=0
+		while [ $(cat /sys/class/net/eno1/operstate) != "up" ] && [ $TIMEOUT -le 10 ]
+		do
+			sleep 0.3
+			TIMEOUT=$((TIMEOUT+1))
+		done
+
+		while [ $(cat /sys/class/net/eth0/operstate) != "up" ] && [ $TIMEOUT -le 10 ]
+		do
+			sleep 0.3
+			TIMEOUT=$((TIMEOUT+1))
+		done
+
+		# block incoming container requests
+		ebtables -t broute -A BROUTING -i eno1 -p IPv4 --ip-protocol tcp --ip-destination-port 80 -j redirect --redirect-target DROP    
+		ebtables -t broute -A BROUTING -i eno1 -p IPv6 --ip6-protocol tcp --ip6-destination-port 80 -j redirect --redirect-target DROP 
+		ebtables -t broute -A BROUTING -i eno1 -p IPv4 --ip-protocol tcp --ip-destination-port 443 -j redirect --redirect-target DROP   
+		ebtables -t broute -A BROUTING -i eno1 -p IPv6 --ip6-protocol tcp --ip6-destination-port 443 -j redirect --redirect-target DROP 
+		ebtables -t broute -A BROUTING -i eno1 -p IPv4 --ip-protocol tcp --ip-destination-port 8080 -j redirect --redirect-target DROP   
+		ebtables -t broute -A BROUTING -i eno1 -p IPv6 --ip6-protocol tcp --ip6-destination-port 8080 -j redirect --redirect-target DROP
+
+		ebtables -t broute -A BROUTING -i eth0 -p IPv4 --ip-protocol tcp --ip-destination-port 80 -j redirect --redirect-target DROP    
+		ebtables -t broute -A BROUTING -i eth0 -p IPv6 --ip6-protocol tcp --ip6-destination-port 80 -j redirect --redirect-target DROP 
+		ebtables -t broute -A BROUTING -i eth0 -p IPv4 --ip-protocol tcp --ip-destination-port 443 -j redirect --redirect-target DROP   
+		ebtables -t broute -A BROUTING -i eth0 -p IPv6 --ip6-protocol tcp --ip6-destination-port 443 -j redirect --redirect-target DROP 
+		ebtables -t broute -A BROUTING -i eth0 -p IPv4 --ip-protocol tcp --ip-destination-port 8080 -j redirect --redirect-target DROP   
+		ebtables -t broute -A BROUTING -i eth0 -p IPv6 --ip6-protocol tcp --ip6-destination-port 8080 -j redirect --redirect-target DROP
+
+		;;
+	stop)
+		;;
+	restart)
+		;;
+	*)
+		echo "Usage: $NAME {start|stop|restart}" >&2
+		exit 1
+		;;
+esac
+
+exit 0

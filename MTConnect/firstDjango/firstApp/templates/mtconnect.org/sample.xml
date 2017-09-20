@@ -1,0 +1,124 @@
+
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="/styles/Streams.xsl"?>
+<MTConnectStreams xmlns:m="urn:mtconnect.org:MTConnectStreams:1.3" xmlns="urn:mtconnect.org:MTConnectStreams:1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:mtconnect.org:MTConnectStreams:1.3 /schemas/MTConnectStreams_1.3.xsd">
+  <Header creationTime="2017-08-28T00:59:27Z" sender="mtcagent" instanceId="1490681234" version="1.3.0.9" bufferSize="131072" nextSequence="3008037074" firstSequence="3008036974" lastSequence="3008168045"/>
+  <Streams>
+    <DeviceStream name="VMC-3Axis" uuid="000">
+      <ComponentStream component="Path" name="path" componentId="pth">
+        <Samples>
+          <PathFeedrate dataItemId="Frt" timestamp="2017-08-28T00:48:57.491071" sequence="3008037021">0.3374146</PathFeedrate>
+          <PathFeedrate dataItemId="Frt" timestamp="2017-08-28T00:48:57.503433" sequence="3008037026">0.2983665</PathFeedrate>
+          <PathFeedrate dataItemId="Frt" timestamp="2017-08-28T00:48:57.552590" sequence="3008037041">0.4</PathFeedrate>
+        </Samples>
+        <Events>
+          <Block dataItemId="cn2" timestamp="2017-08-28T00:48:57.515799" name="block" sequence="3008037032">X1.308279 Y-0.426358</Block>
+          <Line dataItemId="cn4" timestamp="2017-08-28T00:48:57.515799" name="line" sequence="3008037027">319</Line>
+        </Events>
+      </ComponentStream>
+      <ComponentStream component="Linear" name="X" componentId="x1">
+        <Samples>
+          <Position dataItemId="x2" timestamp="2017-08-28T00:48:57.367467" name="Xact" sequence="3008036977" subType="ACTUAL">1.3571346998</Position>
+          <Position dataItemId="x2" timestamp="2017-08-28T00:48:57.379819" name="Xact" sequence="3008036981" subType="ACTUAL">1.3562775850</Position>
+          <Position dataItemId="x2" timestamp="2017-08-28T00:48:57.392222" name="Xact" sequence="3008036985" subType="ACTUAL">1.3554204702</Position>
+          <Position dataItemId="x2" timestamp="2017-08-28T00:48:57.404597" name="Xact" sequence="3008036989" subType="ACTUAL">1.3545633554</Position>
+          <Position dataItemId="x2" timestamp="2017-08-28T00:48:57.416916" name="Xact" sequence="3008036993" subType="ACTUAL">1.3537062407</Position>
+          <Position dataItemId="x2" timestamp="2017-08-28T00:48:57.429296" name="Xact" sequence="3008036997" subType="ACTUAL">1.3528491259</Position>
+          <Position dataItemId="x2" timestamp="2017-08-28T00:48:57.441629" name="Xact" sequence="3008037001" subType="ACTUAL">1.3519918919</Position>
+          <Position dataItemId="x2" timestamp="2017-08-28T00:48:57.453978" name="Xact" sequence="3008037005" subType="ACTUAL">1.3511347771</Position>
+          <Position dataItemId="x2" timestamp="2017-08-28T00:48:57.466305" name="Xact" sequence="3008037009" subType="ACTUAL">1.3505634069</Position>
+          <Position dataItemId="x2" timestamp="2017-08-28T00:48:57.478702" name="Xact" sequence="3008037013" subType="ACTUAL">1.3494205475</Position>
+          <Position dataItemId="x2" timestamp="2017-08-28T00:48:57.491071" name="Xact" sequence="3008037017" subType="ACTUAL">1.3485634327</Position>
+          <Position dataItemId="x2" timestamp="2017-08-28T00:48:57.503433" name="Xact" sequence="3008037022" subType="ACTUAL">1.3476949930</Position>
+          <Position dataItemId="x2" timestamp="2017-08-28T00:48:57.515799" name="Xact" sequence="3008037028" subType="ACTUAL">1.3470835686</Position>
+          <Position dataItemId="x2" timestamp="2017-08-28T00:48:57.528219" name="Xact" sequence="3008037033" subType="ACTUAL">1.3456984758</Position>
+          <Position dataItemId="x2" timestamp="2017-08-28T00:48:57.552590" name="Xact" sequence="3008037037" subType="ACTUAL">1.3436549902</Position>
+          <Position dataItemId="x2" timestamp="2017-08-28T00:48:57.564953" name="Xact" sequence="3008037042" subType="ACTUAL">1.3423434496</Position>
+          <Position dataItemId="x2" timestamp="2017-08-28T00:48:57.577276" name="Xact" sequence="3008037046" subType="ACTUAL">1.3409086466</Position>
+          <Position dataItemId="x2" timestamp="2017-08-28T00:48:57.589638" name="Xact" sequence="3008037050" subType="ACTUAL">1.3392531872</Position>
+          <Position dataItemId="x2" timestamp="2017-08-28T00:48:57.602025" name="Xact" sequence="3008037054" subType="ACTUAL">1.3379287720</Position>
+          <Position dataItemId="x2" timestamp="2017-08-28T00:48:57.614433" name="Xact" sequence="3008037058" subType="ACTUAL">1.3366043568</Position>
+          <Position dataItemId="x2" timestamp="2017-08-28T00:48:57.626783" name="Xact" sequence="3008037062" subType="ACTUAL">1.3352798223</Position>
+          <Position dataItemId="x2" timestamp="2017-08-28T00:48:57.639138" name="Xact" sequence="3008037066" subType="ACTUAL">1.3339554071</Position>
+          <Position dataItemId="x2" timestamp="2017-08-28T00:48:57.651459" name="Xact" sequence="3008037070" subType="ACTUAL">1.3326309919</Position>
+          <Position dataItemId="x3" timestamp="2017-08-28T00:48:57.355070" name="Xcom" sequence="3008036975" subType="COMMANDED">1.3564918885</Position>
+          <Position dataItemId="x3" timestamp="2017-08-28T00:48:57.367467" name="Xcom" sequence="3008036979" subType="COMMANDED">1.3557776107</Position>
+          <Position dataItemId="x3" timestamp="2017-08-28T00:48:57.379819" name="Xcom" sequence="3008036983" subType="COMMANDED">1.3550633329</Position>
+          <Position dataItemId="x3" timestamp="2017-08-28T00:48:57.392222" name="Xcom" sequence="3008036987" subType="COMMANDED">1.3543490551</Position>
+          <Position dataItemId="x3" timestamp="2017-08-28T00:48:57.404597" name="Xcom" sequence="3008036991" subType="COMMANDED">1.3536347774</Position>
+          <Position dataItemId="x3" timestamp="2017-08-28T00:48:57.416916" name="Xcom" sequence="3008036995" subType="COMMANDED">1.3522062218</Position>
+          <Position dataItemId="x3" timestamp="2017-08-28T00:48:57.429296" name="Xcom" sequence="3008036999" subType="COMMANDED">1.3514919440</Position>
+          <Position dataItemId="x3" timestamp="2017-08-28T00:48:57.441629" name="Xcom" sequence="3008037003" subType="COMMANDED">1.3507776662</Position>
+          <Position dataItemId="x3" timestamp="2017-08-28T00:48:57.453978" name="Xcom" sequence="3008037007" subType="COMMANDED">1.3500633884</Position>
+          <Position dataItemId="x3" timestamp="2017-08-28T00:48:57.466305" name="Xcom" sequence="3008037011" subType="COMMANDED">1.3493491106</Position>
+          <Position dataItemId="x3" timestamp="2017-08-28T00:48:57.478702" name="Xcom" sequence="3008037015" subType="COMMANDED">1.3479205550</Position>
+          <Position dataItemId="x3" timestamp="2017-08-28T00:48:57.491071" name="Xcom" sequence="3008037019" subType="COMMANDED">1.3471758126</Position>
+          <Position dataItemId="x3" timestamp="2017-08-28T00:48:57.503433" name="Xcom" sequence="3008037024" subType="COMMANDED">1.3463511337</Position>
+          <Position dataItemId="x3" timestamp="2017-08-28T00:48:57.515799" name="Xcom" sequence="3008037030" subType="COMMANDED">1.3454275108</Position>
+          <Position dataItemId="x3" timestamp="2017-08-28T00:48:57.528219" name="Xcom" sequence="3008037035" subType="COMMANDED">1.3444049439</Position>
+          <Position dataItemId="x3" timestamp="2017-08-28T00:48:57.552590" name="Xcom" sequence="3008037039" subType="COMMANDED">1.3422331289</Position>
+          <Position dataItemId="x3" timestamp="2017-08-28T00:48:57.564953" name="Xcom" sequence="3008037044" subType="COMMANDED">1.3400257441</Position>
+          <Position dataItemId="x3" timestamp="2017-08-28T00:48:57.577276" name="Xcom" sequence="3008037048" subType="COMMANDED">1.3389220517</Position>
+          <Position dataItemId="x3" timestamp="2017-08-28T00:48:57.589638" name="Xcom" sequence="3008037052" subType="COMMANDED">1.3378183593</Position>
+          <Position dataItemId="x3" timestamp="2017-08-28T00:48:57.602025" name="Xcom" sequence="3008037056" subType="COMMANDED">1.3356109745</Position>
+          <Position dataItemId="x3" timestamp="2017-08-28T00:48:57.614433" name="Xcom" sequence="3008037060" subType="COMMANDED">1.3345072821</Position>
+          <Position dataItemId="x3" timestamp="2017-08-28T00:48:57.626783" name="Xcom" sequence="3008037064" subType="COMMANDED">1.3334035897</Position>
+          <Position dataItemId="x3" timestamp="2017-08-28T00:48:57.639138" name="Xcom" sequence="3008037068" subType="COMMANDED">1.3322998973</Position>
+          <Position dataItemId="x3" timestamp="2017-08-28T00:48:57.651459" name="Xcom" sequence="3008037072" subType="COMMANDED">1.3311962049</Position>
+        </Samples>
+      </ComponentStream>
+      <ComponentStream component="Linear" name="Y" componentId="y1">
+        <Samples>
+          <Position dataItemId="y2" timestamp="2017-08-28T00:48:57.355070" name="Yact" sequence="3008036974" subType="ACTUAL">-0.2294117659</Position>
+          <Position dataItemId="y2" timestamp="2017-08-28T00:48:57.367467" name="Yact" sequence="3008036978" subType="ACTUAL">-0.2341346294</Position>
+          <Position dataItemId="y2" timestamp="2017-08-28T00:48:57.379819" name="Yact" sequence="3008036982" subType="ACTUAL">-0.2388574779</Position>
+          <Position dataItemId="y2" timestamp="2017-08-28T00:48:57.392222" name="Yact" sequence="3008036986" subType="ACTUAL">-0.2435803264</Position>
+          <Position dataItemId="y2" timestamp="2017-08-28T00:48:57.404597" name="Yact" sequence="3008036990" subType="ACTUAL">-0.2483031750</Position>
+          <Position dataItemId="y2" timestamp="2017-08-28T00:48:57.416916" name="Yact" sequence="3008036994" subType="ACTUAL">-0.2530260384</Position>
+          <Position dataItemId="y2" timestamp="2017-08-28T00:48:57.429296" name="Yact" sequence="3008036998" subType="ACTUAL">-0.2577488720</Position>
+          <Position dataItemId="y2" timestamp="2017-08-28T00:48:57.441629" name="Yact" sequence="3008037002" subType="ACTUAL">-0.2624717355</Position>
+          <Position dataItemId="y2" timestamp="2017-08-28T00:48:57.453978" name="Yact" sequence="3008037006" subType="ACTUAL">-0.2671945691</Position>
+          <Position dataItemId="y2" timestamp="2017-08-28T00:48:57.466305" name="Yact" sequence="3008037010" subType="ACTUAL">-0.2703431547</Position>
+          <Position dataItemId="y2" timestamp="2017-08-28T00:48:57.478702" name="Yact" sequence="3008037014" subType="ACTUAL">-0.2766402960</Position>
+          <Position dataItemId="y2" timestamp="2017-08-28T00:48:57.491071" name="Yact" sequence="3008037018" subType="ACTUAL">-0.2813631296</Position>
+          <Position dataItemId="y2" timestamp="2017-08-28T00:48:57.503433" name="Yact" sequence="3008037023" subType="ACTUAL">-0.2860833704</Position>
+          <Position dataItemId="y2" timestamp="2017-08-28T00:48:57.515799" name="Yact" sequence="3008037029" subType="ACTUAL">-0.2892225683</Position>
+          <Position dataItemId="y2" timestamp="2017-08-28T00:48:57.528219" name="Yact" sequence="3008037034" subType="ACTUAL">-0.2954631150</Position>
+          <Position dataItemId="y2" timestamp="2017-08-28T00:48:57.552590" name="Yact" sequence="3008037038" subType="ACTUAL">-0.3031174242</Position>
+          <Position dataItemId="y2" timestamp="2017-08-28T00:48:57.564953" name="Yact" sequence="3008037043" subType="ACTUAL">-0.3076941371</Position>
+          <Position dataItemId="y2" timestamp="2017-08-28T00:48:57.577276" name="Yact" sequence="3008037047" subType="ACTUAL">-0.3126922548</Position>
+          <Position dataItemId="y2" timestamp="2017-08-28T00:48:57.589638" name="Yact" sequence="3008037051" subType="ACTUAL">-0.3184593320</Position>
+          <Position dataItemId="y2" timestamp="2017-08-28T00:48:57.602025" name="Yact" sequence="3008037055" subType="ACTUAL">-0.3230729997</Position>
+          <Position dataItemId="y2" timestamp="2017-08-28T00:48:57.614433" name="Yact" sequence="3008037059" subType="ACTUAL">-0.3276866674</Position>
+          <Position dataItemId="y2" timestamp="2017-08-28T00:48:57.626783" name="Yact" sequence="3008037063" subType="ACTUAL">-0.3323003352</Position>
+          <Position dataItemId="y2" timestamp="2017-08-28T00:48:57.639138" name="Yact" sequence="3008037067" subType="ACTUAL">-0.3369139731</Position>
+          <Position dataItemId="y2" timestamp="2017-08-28T00:48:57.651459" name="Yact" sequence="3008037071" subType="ACTUAL">-0.3415276408</Position>
+          <Position dataItemId="y3" timestamp="2017-08-28T00:48:57.355070" name="Ycom" sequence="3008036976" subType="COMMANDED">-0.2376767615</Position>
+          <Position dataItemId="y3" timestamp="2017-08-28T00:48:57.367467" name="Ycom" sequence="3008036980" subType="COMMANDED">-0.2416124707</Position>
+          <Position dataItemId="y3" timestamp="2017-08-28T00:48:57.379819" name="Ycom" sequence="3008036984" subType="COMMANDED">-0.2455481800</Position>
+          <Position dataItemId="y3" timestamp="2017-08-28T00:48:57.392222" name="Ycom" sequence="3008036988" subType="COMMANDED">-0.2494838892</Position>
+          <Position dataItemId="y3" timestamp="2017-08-28T00:48:57.404597" name="Ycom" sequence="3008036992" subType="COMMANDED">-0.2534195985</Position>
+          <Position dataItemId="y3" timestamp="2017-08-28T00:48:57.416916" name="Ycom" sequence="3008036996" subType="COMMANDED">-0.2612910169</Position>
+          <Position dataItemId="y3" timestamp="2017-08-28T00:48:57.429296" name="Ycom" sequence="3008037000" subType="COMMANDED">-0.2652267262</Position>
+          <Position dataItemId="y3" timestamp="2017-08-28T00:48:57.441629" name="Ycom" sequence="3008037004" subType="COMMANDED">-0.2691624354</Position>
+          <Position dataItemId="y3" timestamp="2017-08-28T00:48:57.453978" name="Ycom" sequence="3008037008" subType="COMMANDED">-0.2730981447</Position>
+          <Position dataItemId="y3" timestamp="2017-08-28T00:48:57.466305" name="Ycom" sequence="3008037012" subType="COMMANDED">-0.2770338539</Position>
+          <Position dataItemId="y3" timestamp="2017-08-28T00:48:57.478702" name="Ycom" sequence="3008037016" subType="COMMANDED">-0.2849052724</Position>
+          <Position dataItemId="y3" timestamp="2017-08-28T00:48:57.491071" name="Ycom" sequence="3008037020" subType="COMMANDED">-0.2888338633</Position>
+          <Position dataItemId="y3" timestamp="2017-08-28T00:48:57.503433" name="Ycom" sequence="3008037025" subType="COMMANDED">-0.2927437763</Position>
+          <Position dataItemId="y3" timestamp="2017-08-28T00:48:57.515799" name="Ycom" sequence="3008037031" subType="COMMANDED">-0.2966305701</Position>
+          <Position dataItemId="y3" timestamp="2017-08-28T00:48:57.528219" name="Ycom" sequence="3008037036" subType="COMMANDED">-0.3004942447</Position>
+          <Position dataItemId="y3" timestamp="2017-08-28T00:48:57.552590" name="Ycom" sequence="3008037040" subType="COMMANDED">-0.3080785959</Position>
+          <Position dataItemId="y3" timestamp="2017-08-28T00:48:57.564953" name="Ycom" sequence="3008037045" subType="COMMANDED">-0.3157680336</Position>
+          <Position dataItemId="y3" timestamp="2017-08-28T00:48:57.577276" name="Ycom" sequence="3008037049" subType="COMMANDED">-0.3196127524</Position>
+          <Position dataItemId="y3" timestamp="2017-08-28T00:48:57.589638" name="Ycom" sequence="3008037053" subType="COMMANDED">-0.3234574713</Position>
+          <Position dataItemId="y3" timestamp="2017-08-28T00:48:57.602025" name="Ycom" sequence="3008037057" subType="COMMANDED">-0.3311469090</Position>
+          <Position dataItemId="y3" timestamp="2017-08-28T00:48:57.614433" name="Ycom" sequence="3008037061" subType="COMMANDED">-0.3349916279</Position>
+          <Position dataItemId="y3" timestamp="2017-08-28T00:48:57.626783" name="Ycom" sequence="3008037065" subType="COMMANDED">-0.3388363467</Position>
+          <Position dataItemId="y3" timestamp="2017-08-28T00:48:57.639138" name="Ycom" sequence="3008037069" subType="COMMANDED">-0.3426810656</Position>
+          <Position dataItemId="y3" timestamp="2017-08-28T00:48:57.651459" name="Ycom" sequence="3008037073" subType="COMMANDED">-0.3465257844</Position>
+        </Samples>
+      </ComponentStream>
+    </DeviceStream>
+  </Streams>
+</MTConnectStreams>

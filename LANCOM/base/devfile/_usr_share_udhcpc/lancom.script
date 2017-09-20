@@ -1,0 +1,125 @@
+#!/bin/sh
+
+CONF_FILE=/run/dhcp_config
+
+setNetworkConfig() {
+	# clean config files
+	> /etc/hosts.d/20lo_dyn
+	> /etc/resolv.d/10br1
+
+	SYSTEM_CONFIG=$(cfgmgr --get system)
+
+	if [ ! "$hostname" ]; then hostname=$(echo "$SYSTEM_CONFIG" | jq -r .hostname | grep -E -x '[a-zA-Z0-9.-]+'); fi
+	if [ ! "$broadcast" ]; then broadcast='+'; fi
+
+	echo "IP: $ip" > $CONF_FILE
+	echo "MASK: $mask" >> $CONF_FILE
+	echo "GW: $router" >> $CONF_FILE
+	echo "NS: $dns" >> $CONF_FILE
+
+	# delete ipv4 addresses
+	ip -4 addr flush dev "$interface"
+
+	# address
+	ip addr change "$ip"/"$mask" brd "$broadcast" dev "$interface"
+
+	# hostname
+	if [ "$hostname" ]; then
+		hostname "$hostname"
+		HOSTS="127.0.0.1 $hostname"
+		HOSTS="$HOSTS\n::1 $hostname"
+		echo -e "$HOSTS" > /etc/hosts.d/20lo_dyn
+	fi
+
+	# domain
+	if [ "$domain" ] && [ "$domain" != 'example.org' ]; then
+		hostname "${hostname}.${domain}"
+
+		HOSTS="127.0.0.1 ${hostname}.${domain}"
+		HOSTS="$HOSTS\n::1 ${hostname}.${domain}"
+		echo -e "$HOSTS" >> /etc/hosts.d/20lo_dyn
+
+		RESOLV_CONF="domain $domain"
+		echo "$RESOLV_CONF" >> /etc/resolv.d/10br1
+	fi
+
+	# default gateway
+	if [ "$router" ]; then
+	#	ip route add default via "$router"
+	fi
+
+	# dns
+	if [ "$dns" ]; then
+		RESOLV_CONF=""
+
+		for i in $(echo "$dns" | tr " " "\n")
+		do
+			RESOLV_CONF=$(printf "${RESOLV_CONF}\nnameserver $i")
+		done
+
+		echo "$RESOLV_CONF" >> /etc/resolv.d/10br1
+	fi
+
+	# generate config files
+	awk 'FNR==1{print ""}1' /etc/hosts.d/* > /etc/hosts
+	awk 'FNR==1{print ""}1' /etc/resolv.d/* > /etc/resolv.conf
+
+	# mdns
+	/etc/init.d/avahi-daemon reload
+
+	# llmnr
+	/etc/init.d/llmnrd restart
+}
+
+unsetNetworkConfig() {
+	# clean config files
+	> /etc/hosts.d/20lo_dyn
+	> /etc/resolv.d/10br1
+
+	echo "IP: 10.10.10.10" > $CONF_FILE
+	echo "MASK: 8" >> $CONF_FILE
+	echo "GW: " >> $CONF_FILE
+	echo "NS: " >> $CONF_FILE
+
+	SYSTEM_CONFIG=$(cfgmgr --get system)
+
+	hostname=$(echo "$SYSTEM_CONFIG" | jq -r .hostname | grep -E -x '[a-zA-Z0-9.-]+')
+
+	# delete ipv4 addresses
+	ip -4 addr flush dev "$interface"
+
+	# set fallback address
+	ip addr change 10.10.10.10/8 brd 10.255.255.255 dev "$interface"
+
+	# hostname
+	if [ "$hostname" ]; then
+		hostname "$hostname"
+		HOSTS="127.0.0.1 $hostname"
+		HOSTS="$HOSTS\n::1 $hostname"
+		echo -e "$HOSTS" > /etc/hosts.d/20lo_dyn
+	fi
+
+	# default gateway
+	# TODO produces error message if gateway is not set
+	#ip route del default
+
+	# generate config files
+	awk 'FNR==1{print ""}1' /etc/hosts.d/* > /etc/hosts
+	awk 'FNR==1{print ""}1' /etc/resolv.d/* > /etc/resolv.conf
+
+	# mdns
+	/etc/init.d/avahi-daemon reload
+
+	# llmnr
+	/etc/init.d/llmnrd restart
+}
+
+if [ "$1" == "deconfig" ]; then
+	unsetNetworkConfig
+elif [ "$1" == "bound" ]; then
+	setNetworkConfig
+elif [ "$1" == "renew" ]; then
+	setNetworkConfig
+elif [ "$1" == "nak" ]; then
+	:
+fi

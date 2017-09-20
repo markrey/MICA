@@ -1,8 +1,8 @@
 /********************************************************************************/
 /*	Object Name		:Sample of user program										*/
 /*	File Name		:USER_SAMPLE.c												*/
-/*	Data			:2016/11/01													*/
-/*	Version			:1.01														*/
+/*	Data			:2017/03/21													*/
+/*	Version			:2.00.0														*/
 /*																				*/
 /*	COPYRIGHT (C) 2016 CC-Link Partner Association ALL RIGHTS RESERVED			*/
 /********************************************************************************/
@@ -14,16 +14,17 @@
 
 /************************************************************************************/
 /* The following is an user defined main program. This main program is one of a		*/
-/* sample in the Linux. Please rewrite if necessary.								*/
+/* sample in the Windows OS and Intel x86 CPU. Please rewrite if necessary.			*/
+/* This main program is one of a sample in the Linux. Please rewrite if necessary.	*/
 /************************************************************************************/
 
 #include <stdio.h>
-#ifndef __linux__
+#ifdef _WIN32
 #include <WinSock2.h>
 #include <Ws2tcpip.h>
 #include <iphlpapi.h>
 #include <conio.h>
-#else
+#elif __linux__
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/ioctl.h>
@@ -37,20 +38,16 @@
 #include <fcntl.h>
 #include <mosquitto.h>
 #include <stdlib.h>
+#include <time.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+
 
 /*[ Definition for sample program ]*/
 #define	MAX_INTERFACE						20
 #define	MAX_PATH							260
 #define	SOCKET_NOT_OPEN						0
 #define	DIR_PROC_ROUTE						"/proc/net/route"
-
-#ifndef TRUE
-#define TRUE 1
-#endif
-
-#ifndef FALSE
-#define FALSE 0
-#endif
 
 #define BUFSIZE 2048
 
@@ -80,6 +77,14 @@ typedef struct
 } t_RouteInfo;
 #endif
 
+#ifndef TRUE
+#define TRUE 1
+#endif
+
+#ifndef FALSE
+#define FALSE 0
+#endif
+
 typedef struct 
 {
 	uint8_t		aucMacAddress[6];			/* MAC Address */
@@ -92,6 +97,14 @@ typedef struct
 static CCIEF_BASIC_MASTER_PARAMETER	UserMasterParameter;
 static USER_ADAPTER_INFO			AdapterInfo;
 static char							acMasterParameterFile[MAX_PATH] = "";
+static int							iApplicationState;
+static uint32_t						ulApplicationErrCode = 0xFFFFFFFF;
+
+/* Common Memory*/
+uint16_t *ptrSendData;
+uint16_t *ptrCommRY;
+uint16_t *ptrCommRWw;
+
 
 /* Definition of function of sample program */
 static void user_callback_cyclic_link_scan_end( uint8_t ucGroupNumber );
@@ -99,8 +112,11 @@ static int user_parameter_file_read( char *file_path, CCIEF_BASIC_MASTER_PARAMET
 static void user_get_input_line( char *pcLine, int iLineLength );
 static void user_show_menu_top( void );
 static int user_input_check( void );
+static void user_initialize_application( void );
 static void user_start_application( void );
 static void user_stop_application( void );
+static void user_application_error( uint32_t ulErrCode );
+static void user_application_event( int iEvent, uint32_t ulEventArg );
 static void user_start_cyclic( void );
 static void user_stop_cyclic( void );
 static void publish_slave_info( void );
@@ -116,7 +132,7 @@ int connect_desire = TRUE;
 int is_debug = FALSE;
 struct mosquitto *mosq = NULL;
 char *id            = "mqtt/pub";
-char *host          = "192.168.10.125";
+char *host          = "192.168.10.55";
 int   port          = 1883;
 char *cafile        = NULL;
 char *certfile      = NULL;
@@ -124,28 +140,28 @@ char *keyfile       = NULL;
 int   keepalive     = 60;
 
 /**
- * Broker縺ｨ縺ｮ謗･邯壽�仙粥譎ゅ↓螳溯｡後＆繧後ｋcallback髢｢謨ｰ
+ * Brokerとの接続成功時に実行されるcallback関数
  */
 void on_connect(struct mosquitto *mosq, void *obj, int result)
 {
-    printf("%s(%d)\n", __FUNCTION__, __LINE__);
+//    printf("%s(%d)\n", __FUNCTION__, __LINE__);
     mosquitto_publish(mosq, NULL, topic, strlen(pubBuf), pubBuf, 0, false);
 }
 
 /**
- * Broker縺ｨ縺ｮ謗･邯壹ｒ蛻�譁ｭ縺励◆譎ゅ↓螳溯｡後＆繧後ｋcallback髢｢謨ｰ
+ * Brokerとの接続を切断した時に実行されるcallback関数
  */
 void on_disconnect(struct mosquitto *mosq, void *obj, int rc)
 {
-    printf("%s(%d)\n", __FUNCTION__, __LINE__);
+//   printf("%s(%d)\n", __FUNCTION__, __LINE__);
 }
 
 /**
- * Broker縺ｫMQTT繝｡繝�繧ｻ繝ｼ繧ｸ騾∽ｿ｡蠕後↓螳溯｡後＆繧後ｋcallback髢｢謨ｰ
+ * BrokerにMQTTメッセージ送信後に実行されるcallback関数
  */
 static void on_publish(struct mosquitto *mosq, void *userdata, int mid)
 {
-    printf("%s(%d)\n", __FUNCTION__, __LINE__);
+//    printf("%s(%d)\n", __FUNCTION__, __LINE__);
     connect_desire = FALSE;
     mosquitto_disconnect(mosq);
 }
@@ -190,21 +206,68 @@ int mqttPublish()
 	return ret;
 }
 
+double get_dtime(void){
+  struct timeval tv;
+  gettimeofday(&tv, NULL);
+  return ((double)(tv.tv_sec) + (double)(tv.tv_usec) * 0.001 * 0.001);
+}
 
 /************************************************************************************/
 /* This is an user defined function for main function.								*/
+/* The following is one of a sample in the Windows OS. Please rewrite if necessary.	*/
 /* The following is one of a sample in the Linux. Please rewrite if necessary.		*/
 /************************************************************************************/
 void main( int argc, char *argv[] )
 {
+	int key;
+	int id;
+	double timeStart;
+	double timeCurrent;
+
+	system("cp /root/02_Master/shm /tmp");
+
+	key = ftok("/tmp/shm", 3); 
+	printf("key:%d",key);
+	if((id=shmget(key,512,IPC_CREAT|0666))==-1){
+        perror("shmget");
+        exit(-1);
+    }
+    printf("共有メモリID=%d\n",id);
+    if((ptrSendData=shmat(id,0,0))==-1){
+        perror("shmat");
+    }
+
+	key = ftok("/tmp/shm", 4); 
+	printf("key:%d",key);
+	if((id=shmget(key,((CCIEF_BASIC_RX_RY_SIZE / sizeof( uint16_t )) * CCIEF_BASIC_MAX_SLAVE_NUMBER),IPC_CREAT|0666))==-1){
+        perror("shmget");
+        exit(-1);
+    }
+    printf("共有メモリID=%d\n",id);
+    if((ptrCommRY=shmat(id,0,0))==-1){
+        perror("shmat");
+    }
+
+	key = ftok("/tmp/shm", 5); 
+	printf("key:%d",key);
+	if((id=shmget(key,((CCIEF_BASIC_RWW_RWR_SIZE / sizeof( uint16_t )) * CCIEF_BASIC_MAX_SLAVE_NUMBER),IPC_CREAT|0666))==-1){
+        perror("shmget");
+        exit(-1);
+    }
+    printf("共有メモリID=%d\n",id);
+    if((ptrCommRWw=shmat(id,0,0))==-1){
+        perror("shmat");
+    }
+
+
 	int iErrCode = 0;
-#ifndef __linux__
+#ifdef _WIN32
 	WSADATA wsaData;
-#else
+#elif __linux__
 #endif
 	int iResult;
 
-#ifndef __linux__
+#ifdef _WIN32
 	/* Initialize Winsock */
 	iResult = WSAStartup( MAKEWORD(2,2), &wsaData );
 	if ( iResult != 0 )
@@ -212,7 +275,7 @@ void main( int argc, char *argv[] )
 		printf( "WSAStartup failed with error: %d\n", iResult );
 		goto end;
 	}
-#else
+#elif __linux__
 #endif
 
 	/* Get the Network adapter information */
@@ -225,9 +288,9 @@ void main( int argc, char *argv[] )
 	/* Get command line argument */
 	if ( 1 < argc )
 	{
-#ifndef __linux__
+#ifdef _WIN32
 		strncpy_s( acMasterParameterFile, sizeof(acMasterParameterFile), argv[1], sizeof( acMasterParameterFile ) );
-#else
+#elif __linux__
 		strncpy( acMasterParameterFile, argv[1], sizeof( acMasterParameterFile ) );
 #endif
 	}
@@ -266,11 +329,17 @@ void main( int argc, char *argv[] )
 		goto end;
 	}
 
+	/* Initialize the application */
+	user_application_event( USER_APPLICATION_EVENT_INITIAL, 0 );
+
+	/* Stop the application */
+	user_application_event( USER_APPLICATION_EVENT_STOP, 0 );
+
 	/* Start cyclic operation */
 	user_start_cyclic();
 
-	/* Start application */
-	user_start_application();
+	/* Start the application */
+	user_application_event( USER_APPLICATION_EVENT_START, 0 );
 
 	/* Showing the menu */
 	user_show_menu_top();
@@ -278,6 +347,8 @@ void main( int argc, char *argv[] )
 	/****************************************************************************/
 	/* Main loop of sample code.												*/
 	/****************************************************************************/
+	timeStart = get_dtime();
+	timeCurrent = get_dtime();
 	while (1)
 	{
 		/* CCIEF-BASIC Master */
@@ -296,6 +367,12 @@ void main( int argc, char *argv[] )
 		/* Timer */
 		timer_main();
 
+		timeCurrent = get_dtime();
+		if((timeCurrent - timeStart)>1.0){
+			user_show_slave_info();
+			publish_slave_info();
+			timeStart = get_dtime();
+		}
 		/* Check key input */
 		iErrCode = user_input_check();
 		if ( iErrCode == USER_EXIT )
@@ -312,16 +389,16 @@ void main( int argc, char *argv[] )
 
 	/* Exit the application */
 end:
-#ifndef __linux__
+#ifdef _WIN32
 	/* WinSock clean up */
 	WSACleanup();
-#else
+#elif __linux__
 #endif
 
 	printf( "\nApplication has exited.(please any press)\n" );
-#ifndef __linux__
+#ifdef _WIN32
 	_getch();
-#else
+#elif __linux__
 	getchar();
 #endif
 	return;
@@ -335,7 +412,13 @@ void user_callback_cyclic_link_scan_end( uint8_t ucGroupNumber )
 {
 	CCIEF_BASIC_GROUP_INFO MasterInfo;
 	uint16_t *pusRWw, *pusRY,usSendData_RY,usSendData_RWw;
-	int	i, j, iOccupiedStationNumberTotal;
+	uint16_t tmpRWw[2048], tmpRY[256];
+	int iDataIndexB,iDataIndexW, iDataSize;
+	int	i, j, k, iStationNumber, iOccupiedStationNumberTotal;
+
+	memcpy(tmpRY,ptrCommRY,256);
+	memcpy(tmpRWw,ptrCommRWw,2048);
+
 
 	/* Please write here the operating of cyclic link scan end. */
 
@@ -343,68 +426,108 @@ void user_callback_cyclic_link_scan_end( uint8_t ucGroupNumber )
 	ccief_basic_master_get_group_info( ucGroupNumber, &MasterInfo );
 
 	/*[ Example: Sending the increment data to the slaves. ]*/
-	/*----<Sendig data details>-----------------*/
-	/* | 0b to  3b| Increment from 0x0 to 0xF   */
-	/* | 4b to  7b| RY(0x5) or RWw(0xA)         */
-	/* | 8b to 11b| Slave No.                   */
-	/* |12b to 15b| Group No.                   */
-	/*------------------------------------------*/
-	iOccupiedStationNumberTotal = 0;
-	for ( i = 0; i < UserMasterParameter.iTotalSlaveNumber; i ++ )
-	{
-		/* Check the group number */
-		if ( UserMasterParameter.Slave[i].ucGroupNumber == ucGroupNumber )
+
+	/* Check the application state */
+	if ( iApplicationState == USER_APPLICATION_STATE_RUNNING )
+	{	/* Running */
+
+		/*----<Sending data details>-----------------*/
+		/* | 0b to  3b| Increment from 0x0 to 0xF   */
+		/* | 4b to  7b| RY(0x5) or RWw(0xA)         */
+		/* | 8b to 11b| Slave No.                   */
+		/* |12b to 15b| Group No.                   */
+		/*------------------------------------------*/
+		iOccupiedStationNumberTotal = 0;
+		for ( i = 0; i < UserMasterParameter.iTotalSlaveNumber; i ++ )
 		{
-			usSendData_RY = 0;
-			usSendData_RWw = 0;
-			/* Check the unit information */
-			if (( MasterInfo.usUnitInfo & CCIEF_BASIC_UNIT_INFO_APPLICATION_RUNNING ) == CCIEF_BASIC_UNIT_INFO_APPLICATION_RUNNING )
+			iDataIndexW = ( CCIEF_BASIC_RWW_RWR_SIZE / sizeof( uint16_t ) ) * iOccupiedStationNumberTotal;
+			iDataIndexB = ( CCIEF_BASIC_RX_RY_SIZE / sizeof( uint16_t ) ) * iOccupiedStationNumberTotal;
+
+			/* Check the group number */
+			if ( UserMasterParameter.Slave[i].ucGroupNumber == ucGroupNumber )
 			{
-				/* Starting the application */
-				/* Increase the sending data */
-				if ( ausSendData[i] >= 0x000F )
+				usSendData_RY = 0;
+				usSendData_RWw = 0;
+				/* Check the unit information */
+				if (( MasterInfo.usUnitInfo & CCIEF_BASIC_UNIT_INFO_APPLICATION_RUNNING ) == CCIEF_BASIC_UNIT_INFO_APPLICATION_RUNNING )
 				{
-					ausSendData[i] = 0;
+					/* Starting the application */
+					/* Increase the sending data */
+					if ( ausSendData[i] >= 0x000F )
+					{
+						ausSendData[i] = 0;
+					}
+					else
+					{
+						ausSendData[i] ++;
+					}
+					//ausSendData[i] = *ptrSendData;
+					ausSendData[i] = *(ptrCommRY+10);
+					ausSendData[i] = ausSendData[i] & 0x000F;
+
+					usSendData_RY = ausSendData[i];
+					usSendData_RWw = ausSendData[i];
+					usSendData_RY |= ((uint16_t)ucGroupNumber << 12) | 0x0050 | ((uint16_t)(i+1) << 8);
+					usSendData_RWw |= ((uint16_t)ucGroupNumber << 12) | 0x00A0 | ((uint16_t)(i+1) << 8);
 				}
 				else
 				{
-					ausSendData[i] ++;
+					/* Stopping the application */
+					/* Clear the sending data */
+					ausSendData[i] = 0;
 				}
-				usSendData_RY = ausSendData[i];
-				usSendData_RWw = ausSendData[i];
-				usSendData_RY |= ((uint16_t)ucGroupNumber << 12) | 0x0050 | ((uint16_t)(i+1) << 8);
-				usSendData_RWw |= ((uint16_t)ucGroupNumber << 12) | 0x00A0 | ((uint16_t)(i+1) << 8);
-			}
-			else
-			{
-				/* Stopping the application */
-				/* Clear the sending data */
-				ausSendData[i] = 0;
-			}
 
-			/* Getting the start pointer of RY */
-			pusRY = ccief_basic_master_get_pointer( CCIEF_BASIC_DEVICE_TYPE_RY )
-				  + ( iOccupiedStationNumberTotal * ( CCIEF_BASIC_RX_RY_SIZE / sizeof( uint16_t )));
-			/* Getting the start pointer of RWw */
-			pusRWw = ccief_basic_master_get_pointer( CCIEF_BASIC_DEVICE_TYPE_RWW )
-				   + ( iOccupiedStationNumberTotal * ( CCIEF_BASIC_RWW_RWR_SIZE / sizeof( uint16_t )));
+				/* Getting the start pointer of RY */
+				pusRY = ccief_basic_master_get_pointer( CCIEF_BASIC_DEVICE_TYPE_RY ) + ( iOccupiedStationNumberTotal * ( CCIEF_BASIC_RX_RY_SIZE / sizeof( uint16_t )));
+				/* Getting the start pointer of RWw */
+				pusRWw = ccief_basic_master_get_pointer( CCIEF_BASIC_DEVICE_TYPE_RWW ) + ( iOccupiedStationNumberTotal * ( CCIEF_BASIC_RWW_RWR_SIZE / sizeof( uint16_t )));
 
-			/* Setting the sending RY data */
-			for ( j = 0; j < (int)( UserMasterParameter.Slave[i].usOccupiedStationNumber * ( CCIEF_BASIC_RX_RY_SIZE / sizeof( uint16_t ))); j ++ )
-			{
-				//*pusRY = usSendData_RY;
-				*pusRY = usSendData_RY++;
-				pusRY ++;
+				/* Setting the sending RY data */
+				for ( j = 0; j < (int)( UserMasterParameter.Slave[i].usOccupiedStationNumber * ( CCIEF_BASIC_RX_RY_SIZE / sizeof( uint16_t ))); j ++ )
+				{
+					//*pusRY = usSendData_RY;
+					*pusRY = tmpRY[j+iDataIndexB];
+					pusRY ++;
+				}
+				/* Setting the sending RWw data */
+				for ( j = 0; j < (int)( UserMasterParameter.Slave[i].usOccupiedStationNumber * ( CCIEF_BASIC_RWW_RWR_SIZE / sizeof( uint16_t ))); j ++ )
+				{
+					//*pusRWw = usSendData_RWw;
+					*pusRWw = tmpRWw[j+iDataIndexW];
+					pusRWw ++;
+				}
 			}
-			/* Setting the sending RWw data */
-			for ( j = 0; j < (int)( UserMasterParameter.Slave[i].usOccupiedStationNumber * ( CCIEF_BASIC_RWW_RWR_SIZE / sizeof( uint16_t ))); j ++ )
-			{
-				//*pusRWw = usSendData_RWw;
-				*pusRWw = usSendData_RWw++;
-				pusRWw ++;
-			}
+			iOccupiedStationNumberTotal += UserMasterParameter.Slave[i].usOccupiedStationNumber;
 		}
-		iOccupiedStationNumberTotal += UserMasterParameter.Slave[i].usOccupiedStationNumber;
+	}
+	else if ( iApplicationState == USER_APPLICATION_STATE_ERROR )
+	{	/* Error */
+
+		/* Sendig clear data */
+		iOccupiedStationNumberTotal = 0;
+		for ( i = 0; i < UserMasterParameter.iTotalSlaveNumber; i ++ )
+		{
+			/* Check the group number */
+			if ( UserMasterParameter.Slave[i].ucGroupNumber == ucGroupNumber )
+			{
+				/* Getting the start pointer of RY */
+				pusRY = ccief_basic_master_get_pointer( CCIEF_BASIC_DEVICE_TYPE_RY )
+					  + ( iOccupiedStationNumberTotal * ( CCIEF_BASIC_RX_RY_SIZE / sizeof( uint16_t )));
+				/* Getting the start pointer of RWw */
+				pusRWw = ccief_basic_master_get_pointer( CCIEF_BASIC_DEVICE_TYPE_RWW )
+					   + ( iOccupiedStationNumberTotal * ( CCIEF_BASIC_RWW_RWR_SIZE / sizeof( uint16_t )));
+
+				/* Setting the sending RY data */
+				memset( pusRY, 0, UserMasterParameter.Slave[i].usOccupiedStationNumber * CCIEF_BASIC_RX_RY_SIZE );
+				/* Setting the sending RWw data */
+				memset( pusRWw, 0, UserMasterParameter.Slave[i].usOccupiedStationNumber * CCIEF_BASIC_RWW_RWR_SIZE );
+			}
+			iOccupiedStationNumberTotal += UserMasterParameter.Slave[i].usOccupiedStationNumber;
+		}
+	}
+	else
+	{	/* Other state */
+		/* Nothing */
 	}
 	
 	return;
@@ -416,9 +539,9 @@ void user_callback_cyclic_link_scan_end( uint8_t ucGroupNumber )
 int user_parameter_file_read( char *file_path, CCIEF_BASIC_MASTER_PARAMETER *pParameter )
 {
 	FILE *fp;
-#ifndef __linux__
+#ifdef _WIN32
 	errno_t error;
-#else
+#elif __linux__
 #endif
 	static char aucLine[32];
 	static char aucId[32];
@@ -426,10 +549,10 @@ int user_parameter_file_read( char *file_path, CCIEF_BASIC_MASTER_PARAMETER *pPa
 	uint32_t ulIpaddr;
 	int iId, iIndex, iResult;
 
-#ifndef __linux__
+#ifdef _WIN32
 	error = fopen_s(&fp, file_path, "r" );
 	if ( error != 0 )
-#else
+#elif __linux__
 	fp = fopen( file_path, "r" );
 	if ( fp == NULL )
 #endif
@@ -443,9 +566,9 @@ int user_parameter_file_read( char *file_path, CCIEF_BASIC_MASTER_PARAMETER *pPa
 	/* Start analyze the parameter file */
 	while ( fgets( aucLine, sizeof(aucLine), fp ) != NULL )
 	{
-#ifndef __linux__
+#ifdef _WIN32
 		sscanf_s( aucLine, "%[^,],%[^,]", aucId, sizeof(aucId), aucData, sizeof(aucData) );
-#else
+#elif __linux__
 		sscanf( aucLine, "%[^,],%[^,]", aucId, aucData );
 #endif
 		if ( memcmp( aucId, "Group", 5 ) == 0 )
@@ -459,9 +582,9 @@ int user_parameter_file_read( char *file_path, CCIEF_BASIC_MASTER_PARAMETER *pPa
 	{
 		memset( aucId, 0, sizeof( aucId ) );
 		memset( aucData, 0, sizeof( aucData ) );
-#ifndef __linux__
+#ifdef _WIN32
 		sscanf_s( aucLine, "%[^,],%[^,]", aucId, sizeof(aucId), aucData, sizeof(aucData) );
-#else
+#elif __linux__
 		sscanf( aucLine, "%[^,],%[^,]", aucId, aucData );
 #endif
 		if ( memcmp( aucId, "Slave", 5 ) == 0 )
@@ -506,9 +629,9 @@ int user_parameter_file_read( char *file_path, CCIEF_BASIC_MASTER_PARAMETER *pPa
 	{
 		memset( aucId, 0, sizeof( aucId ) );
 		memset( aucData, 0, sizeof( aucData ) );
-#ifndef __linux__
+#ifdef _WIN32
 		sscanf_s( aucLine, "%[^,],%[^,]", aucId, sizeof(aucId), aucData, sizeof(aucData) );
-#else
+#elif __linux__
 		sscanf( aucLine, "%[^,],%[^,]", aucId, aucData );
 #endif
 		iId = strtol( aucId, NULL, 0 );
@@ -560,7 +683,7 @@ int user_parameter_file_read( char *file_path, CCIEF_BASIC_MASTER_PARAMETER *pPa
 /************************************************************************************/
 void user_get_input_line( char *pcLine, int iLineLength )
 {
-#ifndef __linux__
+#ifdef _WIN32
 	int	iKey;
 	int	iIndex = 0;
 
@@ -595,7 +718,7 @@ void user_get_input_line( char *pcLine, int iLineLength )
 			iIndex ++;
 		}
 	}
-#else
+#elif __linux__
 	char input_line[256];
 
 	fgets(input_line,sizeof(input_line),stdin);
@@ -612,13 +735,15 @@ void user_show_menu_top( void )
 {
 	/* Showing the menu */
 	printf( "\nPlease input the following key values if you want any action.\n\n" );
-	printf( "    '1'   - Start the cyclic.\n" );
-	printf( "    '2'   - Stop the cyclic.\n" );
-	printf( "    '3'   - Start the application.\n" );
-	printf( "    '4'   - Stop the application.\n" );
-	printf( "    '5'   - Show information of the slave.\n" );
-	printf( "    '6'   - Show information of the master.\n" );
-	printf( "    '7'   - Show the parameter.\n" );
+	printf( "    'C'   - Start the cyclic.\n" );
+	printf( "    'T'   - Stop the cyclic.\n" );
+	printf( "    'R'   - Start the application.\n" );
+	printf( "    'O'   - Stop the application.\n" );
+	printf( "    'E'   - Error the application.\n" );
+	printf( "    'N'   - Cancel the application error.\n" );
+	printf( "    'S'   - Show information of the slave.\n" );
+	printf( "    'M'   - Show information of the master.\n" );
+	printf( "    'P'   - Show the parameter.\n" );
 	printf( "    'Esc' - Exit the application.\n" );
 
 	return;
@@ -629,16 +754,15 @@ void user_show_menu_top( void )
 /************************************************************************************/
 int user_input_check( void )
 {
-#ifndef __linux__
+#ifdef _WIN32
 	int	iKey;
 	static int iExit = USER_ERR_OK;
 
 	/* Chcek key input */
 	if ( _kbhit() )
 	{
-		iKey = _getch();
-#else
-
+		iKey = toupper( _getch() );
+#elif __linux__
 	struct termios		oldt;
 	struct termios		newt;
 	int					ch;
@@ -648,12 +772,12 @@ int user_input_check( void )
 	/* Get the now of setting */
 	tcgetattr(STDIN_FILENO, &oldt);
 	newt = oldt;
-	newt.c_lflag &= ~(ICANON | ECHO);
+	newt.c_lflag &= ~(unsigned int)(ICANON | ECHO);
 	/* Stop of the echo */
 	tcsetattr(STDIN_FILENO, TCSANOW, &newt);
 	oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
 	fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
-	ch = getchar();
+	ch = toupper( getchar() );
 	/* Return to the initial setting */
 	tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
 	fcntl(STDIN_FILENO, F_SETFL, oldf);
@@ -664,32 +788,38 @@ int user_input_check( void )
 #endif
 		if ( iExit == USER_ERR_OK )
 		{
-#ifndef __linux__
+#ifdef _WIN32
 			switch ( iKey )
-#else
+#elif __linux__
 			switch ( getchar() )
 #endif
 			{
-				case '1':	/* Start cyclic of the slave */
+				case 'C':	/* Start cyclic of the slave */
 					user_start_cyclic();
 					break;
-				case '2':	/* Stop cyclic of the slave */
+				case 'T':	/* Stop cyclic of the slave */
 					user_stop_cyclic();
 					break;
-				case '3':	/* Start the application */
-					user_start_application();
+				case 'R':	/* Start the application */
+					user_application_event( USER_APPLICATION_EVENT_START, 0 );
 					break;
-				case '4':	/* Stop the application */
-					user_stop_application();
+				case 'O':	/* Stop the application */
+					user_application_event( USER_APPLICATION_EVENT_STOP, 0 );
 					break;
-				case '5':	/* Show information of the slave */
+				case 'E':	/* Error the application */
+					user_application_event( USER_APPLICATION_EVENT_ERROR, ulApplicationErrCode -- );
+					break;
+				case 'N':	/* Cancel the application error */
+					user_application_event( USER_APPLICATION_EVENT_CANCEL_ERROR, 0 );
+					break;
+				case 'S':	/* Show information of the slave */
 					user_show_slave_info();
 					publish_slave_info();
 					break;
-				case '6':	/* Show information of the master */
+				case 'M':	/* Show information of the master */
 					user_show_master_info();
 					break;
-				case '7':	/* Show the parameter */
+				case 'P':	/* Show the parameter */
 					user_show_parameter();
 					break;
 				case 0x1b:	/* 'Esc' */
@@ -703,15 +833,15 @@ int user_input_check( void )
 		}
 		else
 		{
-#ifndef __linux__
+#ifdef _WIN32
 			switch ( iKey )
-#else
+#elif __linux__
 			switch ( ch )
 #endif
 			{
 				case 'Y':	/* Exit the application */
-#ifndef __linux__
-#else
+#ifdef _WIN32
+#elif __linux__
 					getchar();
 #endif
 					return USER_EXIT;
@@ -724,6 +854,19 @@ int user_input_check( void )
 	}
 
 	return USER_ERR_OK;
+}
+
+/************************************************************************************/
+/* This is an user defined function for menu of initialize the application.			*/
+/************************************************************************************/
+void user_initialize_application( void )
+{
+	printf( "\nInitialize the application!\n" );
+
+	/* Set the unit information */
+	ccief_basic_master_set_unit_info( CCIEF_BASIC_UNIT_INFO_APPLICATION_STOP_FACTOR_INITIAL | CCIEF_BASIC_UNIT_INFO_APPLICATION_STOP );
+
+	return;
 }
 
 /************************************************************************************/
@@ -747,8 +890,129 @@ void user_stop_application( void )
 	printf( "\nStop the application!\n" );
 
 	/* Set the unit information */
-	ccief_basic_master_set_unit_info( CCIEF_BASIC_UNIT_INFO_APPLICATION_STOP );
+	ccief_basic_master_set_unit_info( CCIEF_BASIC_UNIT_INFO_APPLICATION_STOP_FACTOR_USER | CCIEF_BASIC_UNIT_INFO_APPLICATION_STOP );
 
+	return;
+}
+
+/************************************************************************************/
+/* This is an user defined function for menu of the application error.				*/
+/************************************************************************************/
+void user_application_error( uint32_t ulErrCode )
+{
+	printf( "\nError in the application!  ErrorCode: 0x%08X\n", ulErrCode );
+
+	/* Set the unit information */
+	ccief_basic_master_set_unit_info( CCIEF_BASIC_UNIT_INFO_APPLICATION_STOP_FACTOR_ERROR | CCIEF_BASIC_UNIT_INFO_APPLICATION_STOP );
+
+	return;
+}
+
+/************************************************************************************/
+/* This is an user defined function for event of the application.					*/
+/************************************************************************************/
+static void user_application_event( int iEvent, uint32_t ulEventArg )
+{
+	static int	iApplicationStateBeforeError;
+
+	/* Chcek the event */
+	switch ( iEvent )
+	{
+		case USER_APPLICATION_EVENT_INITIAL:		/* Application Initial */
+			/* Initialize the application */
+			user_initialize_application();
+
+			/* Set the application state */
+			iApplicationState = USER_APPLICATION_STATE_INITIAL;
+			break;
+		case USER_APPLICATION_EVENT_STOP:		/* Application Stop */
+			/* Check the application state */
+			if ( iApplicationState == USER_APPLICATION_STATE_INITIAL )
+			{	/* Initial */
+				/* Stop the application */
+				user_stop_application();
+
+				/* Set the application state */
+				iApplicationState = USER_APPLICATION_STATE_STOP;
+			}
+			else if ( iApplicationState == USER_APPLICATION_STATE_RUNNING )
+			{	/* Running */
+				/* Stop the application */
+				user_stop_application();
+
+				/* Set the application state */
+				iApplicationState = USER_APPLICATION_STATE_STOP;
+			}
+			else if ( iApplicationState == USER_APPLICATION_STATE_ERROR )
+			{	/* Error */
+				printf( "\nError in the application. Please cancel the error! \n" );
+			}
+			break;
+		case USER_APPLICATION_EVENT_START:		/* Application Start */
+			/* Check the application state */
+			if ( iApplicationState == USER_APPLICATION_STATE_STOP )
+			{	/* Stop */
+				/* Start the application */
+				user_start_application();
+
+				/* Set the application state */
+				iApplicationState = USER_APPLICATION_STATE_RUNNING;
+			}
+			else if ( iApplicationState == USER_APPLICATION_STATE_ERROR )
+			{	/* Error */
+				printf( "\nError in the application. Please cancel the error! \n" );
+			}
+			break;
+		case USER_APPLICATION_EVENT_ERROR:		/* Application Error */
+			/* Check the application state */
+			if (( iApplicationState == USER_APPLICATION_STATE_STOP )
+			 || ( iApplicationState == USER_APPLICATION_STATE_RUNNING ))
+			{
+				/* Error the application */
+				user_application_error( ulEventArg );
+
+				/* Set to the temporary state */
+				iApplicationStateBeforeError = iApplicationState;
+
+				/* Set the application state */
+				iApplicationState = USER_APPLICATION_STATE_ERROR;
+			}
+			else
+			{
+				printf( "\nError in the application. Please cancel the error! \n" );
+			}
+			break;
+		case USER_APPLICATION_EVENT_CANCEL_ERROR:		/* Cancel for Application Error */
+			/* Check the application state */
+			if ( iApplicationState == USER_APPLICATION_STATE_ERROR )
+			{	/* Error */
+				/* Check the temporary state */
+				if ( iApplicationStateBeforeError == USER_APPLICATION_STATE_STOP )
+				{
+					printf( "\nCancel the error! \n" );
+
+					/* Stop the application */
+					user_stop_application();
+
+					/* Set the application state */
+					iApplicationState = USER_APPLICATION_STATE_STOP;
+				}
+				else if ( iApplicationStateBeforeError == USER_APPLICATION_STATE_RUNNING )
+				{
+					printf( "\nCancel the error! \n" );
+
+					/* Start the application */
+					user_start_application();
+
+					/* Set the application state */
+					iApplicationState = USER_APPLICATION_STATE_RUNNING;
+				}
+			}
+			break;
+		default:
+			break;
+	}
+	
 	return;
 }
 
@@ -800,6 +1064,8 @@ void publish_slave_info( void )
 	uint16_t usOccupiedStationNumber;
 	int iDataIndex, iDataSize;
 	int i, j, k, iStationNumber;
+	time_t now;
+	struct tm *ltm;
 
 	pParameter = &UserMasterParameter;
 	/* Getting the start pointer of RX */
@@ -843,25 +1109,20 @@ void publish_slave_info( void )
 		for ( j = 0; j < iDataSize; j ++ )
 		{
 			pusData = pusRX + iDataIndex + j;
-			for ( k = 0; k < 16; k ++ )
-			{
-				if(!((j==0) && (k==0))) {
-					sprintf(pubBuf, "%s,",pubBuf);
-				}
-				sprintf(pubBuf, "%s %d",pubBuf, ( *pusData >> ( 16 - ( k + 1 ))) & 0x1 );
+			if(!(j==0)) {
+				sprintf(pubBuf, "%s,",pubBuf);
 			}
+			sprintf(pubBuf, "%s \"%04X\"", pubBuf,*pusData );
 		}
 		sprintf(pubBuf, "%s]," ,pubBuf);
 		sprintf(pubBuf, "%s\"RY\":[" ,pubBuf);
 		for ( j = 0; j < iDataSize; j ++ )
 		{
 			pusData = pusRY + iDataIndex + j;
-			for ( k = 0; k < 16; k ++ ) {
-				if(!((j==0) && (k==0))) {
-					sprintf(pubBuf, "%s,",pubBuf);
-				}
-				sprintf(pubBuf, "%s %d",pubBuf, ( *pusData >> ( 16 - ( k + 1 ))) & 0x1 );
+			if(!(j==0)) {
+				sprintf(pubBuf, "%s,",pubBuf);
 			}
+			sprintf(pubBuf, "%s \"%04X\"", pubBuf,*pusData );
 		}
 		sprintf(pubBuf, "%s]," ,pubBuf);
 		iDataIndex = ( CCIEF_BASIC_RWW_RWR_SIZE / sizeof( uint16_t ) ) * iStationNumber;
@@ -869,35 +1130,39 @@ void publish_slave_info( void )
 		sprintf(pubBuf, "%s\"RWw\":[" ,pubBuf);
 		for ( j = 0; j < ( iDataSize / 8 ); j ++ )
 		{
-			pusData = pusRWw + iDataIndex + ( j + 1 ) * 8;
+			pusData = pusRWw + iDataIndex + j * 8;
 			for ( k = 0; k < 8; k ++ ) {
 				if(!((j==0) && (k==0))) {
 					sprintf(pubBuf, "%s,",pubBuf);
 				}
-				pusData --;
 				sprintf(pubBuf, "%s \"%04X\"",pubBuf, *pusData );
+				pusData ++;
 			}
 		}
 		sprintf(pubBuf, "%s]," ,pubBuf);
 		sprintf(pubBuf, "%s\"RWr\":[" ,pubBuf);
 		for ( j = 0; j < ( iDataSize / 8 ); j ++ )
 		{
-			pusData = pusRWr + iDataIndex + ( j + 1 ) * 8;
+			pusData = pusRWr + iDataIndex + j * 8;
 			for ( k = 0; k < 8; k ++ )
 			{
 				if(!((j==0) && (k==0))) {
 					sprintf(pubBuf, "%s,",pubBuf);
 				}
-				pusData --;
 				sprintf(pubBuf, "%s \"%04X\"",pubBuf, *pusData );
+				pusData ++;
 			}
 		}
-		sprintf(pubBuf, "%s]}" ,pubBuf);
+		time( &now );
+		ltm = localtime( &now );
+		sprintf(pubBuf, "%s],\"datetime\":\"%04d/%02d/%02d %02d:%02d:%02d\"}" ,pubBuf,ltm->tm_year + 1900, ltm->tm_mon + 1, ltm->tm_mday, ltm->tm_hour, ltm->tm_min, ltm->tm_sec );
+
+		sprintf(topic,"ccief/slave%d",iStationNumber+1);
+		//printf("pubBuf[%s]\n",pubBuf);
+		mqttPublish();
+
 		iStationNumber += usOccupiedStationNumber;
 	}
-	strcpy(topic,"ccief");
-	printf("pubBuf[%s]\n",pubBuf);
-	mqttPublish();
 
 	return;
 }
@@ -936,26 +1201,36 @@ void user_show_slave_info( void )
 		ccief_basic_master_get_slave_info( i, &SlaveInfo );
 		usOccupiedStationNumber = pParameter->Slave[i].usOccupiedStationNumber;
 		printf( "\n    Slave No.%d:\n", i + 1 );
-		printf( "      Slave ID:\t\t\t0x%08lX\n", SlaveInfo.ulId );
-		printf( "      Occupied Station Number:\t%d\n", SlaveInfo.usOccupiedStationNumber );
+		printf( "      Slave ID:\t\t\t\t0x%08lX\n", SlaveInfo.ulId );
+		printf( "      Occupied Station Number:\t\t%d\n", SlaveInfo.usOccupiedStationNumber );
 		if ( SlaveInfo.ucGroupNumber != 0 )
 		{
-			printf( "      Group No.:\t\t%d\n", SlaveInfo.ucGroupNumber );
+			printf( "      Group No.:\t\t\t%d\n", SlaveInfo.ucGroupNumber );
 		}
-		printf( "      State:\t\t\t%d [%s]\n", SlaveInfo.iState, &aucSlaveStateStr[SlaveInfo.iState] );
-		printf( "      Protocol Version:\t\t0x%04X\n", SlaveInfo.usProtocolVersion );
-		printf( "      End Code:\t\t\t0x%04X\n", SlaveInfo.usEndCode );
+		printf( "      State:\t\t\t\t%d [%s]\n", SlaveInfo.iState, &aucSlaveStateStr[SlaveInfo.iState] );
+		printf( "      Protocol Version:\t\t\t0x%04X\n", SlaveInfo.usProtocolVersion );
+		printf( "      End Code:\t\t\t\t0x%04X\n", SlaveInfo.usEndCode );
 		printf( "      Slave Notify Information:\n" );
-		printf( "        Vender Code:\t\t0x%04X\n", SlaveInfo.NotifyInfo.usVenderCode );
-		printf( "        Model Code:\t\t0x%08X\n", SlaveInfo.NotifyInfo.ulModelCode );
-		printf( "        Machine Version:\t0x%04X\n", SlaveInfo.NotifyInfo.usMachineVersion );
-		printf( "        Unit Info:\t\t0x%04X\n", SlaveInfo.NotifyInfo.usUnitInfo );
-		printf( "        Error Code:\t\t0x%04X\n", SlaveInfo.NotifyInfo.usErrCode );
-		printf( "        Unit Data:\t\t0x%08X\n", SlaveInfo.NotifyInfo.ulUnitData );
-		printf( "      Frame sequence number:\t0x%04X\n", SlaveInfo.usFrameSequenceNumber );
+		printf( "        Vender Code:\t\t\t0x%04X\n", SlaveInfo.NotifyInfo.usVenderCode );
+		printf( "        Model Code:\t\t\t0x%08X\n", SlaveInfo.NotifyInfo.ulModelCode );
+		printf( "        Machine Version:\t\t0x%04X\n", SlaveInfo.NotifyInfo.usMachineVersion );
+		printf( "        Unit Info:\t\t\t0x%04X\n", SlaveInfo.NotifyInfo.usUnitInfo );
+		if (( SlaveInfo.NotifyInfo.usUnitInfo & CCIEF_BASIC_UNIT_INFO_APPLICATION_RUNNING ) == CCIEF_BASIC_UNIT_INFO_APPLICATION_RUNNING )
+		{
+			printf( "             b0(Application State):\t1 [Running]\n" );
+		}
+		else
+		{
+			printf( "             b0(Application State):\t0 [Stop]\n" );
+		}
+		printf( "        Error Code:\t\t\t0x%04X\n", SlaveInfo.NotifyInfo.usErrCode );
+		printf( "        Unit Data:\t\t\t0x%08X\n", SlaveInfo.NotifyInfo.ulUnitData );
+		printf( "      Frame sequence number:\t\t0x%04X\n", SlaveInfo.usFrameSequenceNumber );
 		iDataIndex = ( CCIEF_BASIC_RX_RY_SIZE / sizeof( uint16_t ) ) * iStationNumber;
 		iDataSize = ( CCIEF_BASIC_RX_RY_SIZE / sizeof( uint16_t ) ) * usOccupiedStationNumber;
-		printf( "\n        RX  | F E D C B A 9 8 7 6 5 4 3 2 1 0 |  data\n" );
+		printf( "      Cyclic data:\n" );
+		printf( "      =================================================\n" );
+		printf( "        RX  | F E D C B A 9 8 7 6 5 4 3 2 1 0 |  data  \n" );
 		printf( "      -------------------------------------------------\n" );
 		for ( j = 0; j < iDataSize; j ++ )
 		{
@@ -967,7 +1242,8 @@ void user_show_slave_info( void )
 			}
 			printf( " | 0x%04X \n", *pusData );
 		}
-		printf( "\n        RY  | F E D C B A 9 8 7 6 5 4 3 2 1 0 |  data\n" );
+		printf( "      =================================================\n" );
+		printf( "        RY  | F E D C B A 9 8 7 6 5 4 3 2 1 0 |  data  \n" );
 		printf( "      -------------------------------------------------\n" );
 		for ( j = 0; j < iDataSize; j ++ )
 		{
@@ -980,7 +1256,8 @@ void user_show_slave_info( void )
 		}
 		iDataIndex = ( CCIEF_BASIC_RWW_RWR_SIZE / sizeof( uint16_t ) ) * iStationNumber;
 		iDataSize = ( CCIEF_BASIC_RWW_RWR_SIZE / sizeof( uint16_t ) ) * usOccupiedStationNumber;
-		printf( "\n        RWw |   +7     +6     +5     +4     +3     +2     +1     +0  \n" );
+		printf( "      ================================================================\n" );
+		printf( "        RWw |   +7     +6     +5     +4     +3     +2     +1     +0   \n" );
 		printf( "      ----------------------------------------------------------------\n" );
 		for ( j = 0; j < ( iDataSize / 8 ); j ++ )
 		{
@@ -992,7 +1269,8 @@ void user_show_slave_info( void )
 			}
 			printf( "\n" );
 		}
-		printf( "\n        RWr |   +7     +6     +5     +4     +3     +2     +1     +0  \n" );
+		printf( "      ================================================================\n" );
+		printf( "        RWr |   +7     +6     +5     +4     +3     +2     +1     +0   \n" );
 		printf( "      ----------------------------------------------------------------\n" );
 		for ( j = 0; j < ( iDataSize / 8 ); j ++ )
 		{
@@ -1036,25 +1314,40 @@ void user_show_master_info( void )
 		if ( i == 0 )
 		{
 			printf( "\n    Master:\n" );
-			printf( "      Protocol Version:\t\t\t0x%04X\n", MasterInfo.usProtocolVersion );
-			printf( "      Master ID:\t\t\t0x%08lX\n", MasterInfo.ulId );
-			printf( "      Unit Info:\t\t\t0x%04X\n", MasterInfo.usUnitInfo );
-			printf( "      Parameter ID:\t\t\t0x%04X\n", MasterInfo.usParameterId );
+			printf( "      Protocol Version:\t\t\t\t0x%04X\n", MasterInfo.usProtocolVersion );
+			printf( "      Master ID:\t\t\t\t0x%08lX\n", MasterInfo.ulId );
+			printf( "      Unit Info:\t\t\t\t0x%04X\n", MasterInfo.usUnitInfo );
+			if (( MasterInfo.usUnitInfo & CCIEF_BASIC_UNIT_INFO_APPLICATION_MASK ) == CCIEF_BASIC_UNIT_INFO_APPLICATION_RUNNING )
+			{
+				printf( "             b0:Application State\t\t1 [Running]\n" );
+			}
+			else
+			{
+				printf( "             b0:Application State\t\t0 [Stop]\n" );
+			}
+			if (( MasterInfo.usUnitInfo & CCIEF_BASIC_UNIT_INFO_APPLICATION_STOP_FACTOR_MASK ) == CCIEF_BASIC_UNIT_INFO_APPLICATION_STOP_FACTOR_USER )
+			{
+				printf( "             b1:Application Stop Factor\t\t1 [User Operation]\n" );
+			}
+			else
+			{
+				printf( "             b1:Application Stop Factor\t\t0 [Error/Initial]\n" );
+			}
+			printf( "      Parameter ID:\t\t\t\t0x%04X\n", MasterInfo.usParameterId );
 		}
 		printf( "\n    Group No.%d:\n", MasterInfo.ucGroupNumber );
-		printf( "      Total Number of Slave:\t\t%d\n", MasterInfo.iTotalSlaveNumber );
-		printf( "      Total Number of Occupied Station:\t%d\n", MasterInfo.usTotalOccupiedStationNumber );
-		printf( "      State:\t\t\t\t%d [%s]\n", MasterInfo.iState, &aucMasterStateStr[MasterInfo.iState] );
+		printf( "      Total Number of Slave:\t\t\t%d\n", MasterInfo.iTotalSlaveNumber );
+		printf( "      Total Number of Occupied Station:\t\t%d\n", MasterInfo.usTotalOccupiedStationNumber );
+		printf( "      State:\t\t\t\t\t%d [%s]\n", MasterInfo.iState, &aucMasterStateStr[MasterInfo.iState] );
 		timer_analyze_time_data( MasterInfo.llTimeData, &TimeData );
-		printf( "      Time Data:\t\t\t%lld [%02d-%02d-%02d %02d:%02d:%02d.%03d]\n", MasterInfo.llTimeData,
-				TimeData.usYear, TimeData.usMonth, TimeData.usDay, TimeData.usHour, TimeData.usMinute,
-				TimeData.usSecond, TimeData.usMilliseconds );
-		printf( "      Frame sequence number:\t\t0x%04X\n", MasterInfo.usFrameSequenceNumber );
-		printf( "      Link scan time(Current):\t\t%01.3f[ms]\n", ((float)MasterInfo.llLinkScanTimeCurrent / 1000) );
-		printf( "      Link scan time(Minimum):\t\t%01.3f[ms]\n", ((float)MasterInfo.llLinkScanTimeMinimum / 1000) );
-		printf( "      Link scan time(Maximum):\t\t%01.3f[ms]\n", ((float)MasterInfo.llLinkScanTimeMaximum / 1000) );
+		printf( "      Time Data:\t\t\t\t%02d-%02d-%02d %02d:%02d:%02d.%03d\n", TimeData.usYear, TimeData.usMonth,
+				TimeData.usDay, TimeData.usHour, TimeData.usMinute, TimeData.usSecond, TimeData.usMilliseconds );
+		printf( "      Frame sequence number:\t\t\t0x%04X\n", MasterInfo.usFrameSequenceNumber );
+		printf( "      Link scan time(Current):\t\t\t%01.3f [ms]\n", ((float)MasterInfo.llLinkScanTimeCurrent / 1000) );
+		printf( "      Link scan time(Minimum):\t\t\t%01.3f [ms]\n", ((float)MasterInfo.llLinkScanTimeMinimum / 1000) );
+		printf( "      Link scan time(Maximum):\t\t\t%01.3f [ms]\n", ((float)MasterInfo.llLinkScanTimeMaximum / 1000) );
 		printf( "      Group:\n" );
-		printf( "          Master(ID:0x%08lX)\n", MasterInfo.ulId );
+		printf( "          Master(ID:0x%08lX)  * CS = CyclicState\n", MasterInfo.ulId );
 		for ( j = 0; j < pParameter->iTotalSlaveNumber; j ++ )
 		{
 			/* Getting the slave state */
@@ -1065,12 +1358,12 @@ void user_show_master_info( void )
 				/* Check the cyclic state */
 				if ( SlaveInfo.iCyclicState == CCIEF_BASIC_CYCLIC_STATE_ON )
 				{
-					printf( "              |--- Slave No.%-2d (ID:0x%-08lX CyclicState:ON  State:%d [%s])\n",
+					printf( "              |--- Slave No.%-2d (ID:0x%-08lX CS:ON  State:%d [%s])\n",
 							( j + 1 ), SlaveInfo.ulId, SlaveInfo.iState, &aucSlaveStateStr[SlaveInfo.iState] );
 				}
 				else
 				{
-					printf( "              |--- Slave No.%-2d (ID:0x%-08lX CyclicState:OFF State:%d [%s])\n",
+					printf( "              |--- Slave No.%-2d (ID:0x%-08lX CS:OFF State:%d [%s])\n",
 							( j + 1 ), SlaveInfo.ulId, SlaveInfo.iState, &aucSlaveStateStr[SlaveInfo.iState] );
 				}
 			}
@@ -1097,23 +1390,23 @@ void user_show_parameter( void )
 	/* Setting of the master */
 	printf( "\nShow master parameter!\n" );
 	printf( "\n    Master:\n" );
-#ifndef __linux__
+#ifdef _WIN32
 	addr.S_un.S_addr = htonl(AdapterInfo.ulIpAddress);
-#else
+#elif __linux__
 	addr.s_addr = htonl(AdapterInfo.ulIpAddress);
 #endif
 	inet_ntop(AF_INET, &addr, Ipaddr, sizeof(Ipaddr) );
 	printf( "      IP Address:\t\t\t%s (Master ID:0x%08lX)\n", Ipaddr, AdapterInfo.ulIpAddress );
-#ifndef __linux__
+#ifdef _WIN32
 	addr.S_un.S_addr = htonl(AdapterInfo.ulSubnetMask);
-#else
+#elif __linux__
 	addr.s_addr = htonl(AdapterInfo.ulSubnetMask);
 #endif
 	inet_ntop(AF_INET, &addr, Ipaddr, sizeof(Ipaddr) );
 	printf( "      Subnet mask:\t\t\t%s\n", Ipaddr );
-#ifndef __linux__
+#ifdef _WIN32
 	addr.S_un.S_addr = htonl(AdapterInfo.ulDefaultGatewayIPAddress);
-#else
+#elif __linux__
 	addr.s_addr = htonl(AdapterInfo.ulDefaultGatewayIPAddress);
 #endif
 	inet_ntop(AF_INET, &addr, Ipaddr, sizeof(Ipaddr) );
@@ -1128,21 +1421,21 @@ void user_show_parameter( void )
 		if ( pParameter->Group[i].ucGroupNumber != 0 )
 		{
 			printf( "      Group No.%d:\n", pParameter->Group[i].ucGroupNumber );
-#ifndef __linux__
+#ifdef _WIN32
 			sprintf_s( space, sizeof(space), "  " );
-#else
+#elif __linux__
 			sprintf( space, "  " );
 #endif
 		}
-		printf( "%s      Disconnection Time[ms]:\t\t%d (0:500[ms])\n", space, pParameter->Group[i].usCyclicTransmissionTimeout );
+		printf( "%s      Disconnection Time [ms]:\t%d (0:500 [ms])\n", space, pParameter->Group[i].usCyclicTransmissionTimeout );
 		printf( "%s      Disconnection Timeout Count:\t%d (0:3)\n", space, pParameter->Group[i].usCyclicTransmissionTimeoutCount );
 		if ( pParameter->Group[i].usConstantLinkScanTime == 0 )
 		{
-			printf( "%s      Constant Link Scan Time[ms]:\tNot use\n", space );
+			printf( "%s      Constant Link Scan Time [ms]:\tNot use\n", space );
 		}
 		else
 		{
-			printf( "%s      Constant Link Scan Time[ms]:\t%d:\n", space, pParameter->Group[i].usConstantLinkScanTime );
+			printf( "%s      Constant Link Scan Time [ms]:\t%d:\n", space, pParameter->Group[i].usConstantLinkScanTime );
 		}
 	}
 	/* Setting of the slave */
@@ -1150,9 +1443,9 @@ void user_show_parameter( void )
 	for ( i = 0; i < pParameter->iTotalSlaveNumber; i++ )
 	{
 		printf( "      Slave No.%d:\n", i + 1 );
-#ifndef __linux__
+#ifdef _WIN32
 		addr.S_un.S_addr = htonl(pParameter->Slave[i].ulIpAddress);
-#else
+#elif __linux__
 		addr.s_addr = htonl(pParameter->Slave[i].ulIpAddress);	
 #endif
 		inet_ntop(AF_INET, &addr, Ipaddr, sizeof(Ipaddr) );
@@ -1173,11 +1466,12 @@ void user_show_parameter( void )
 
 /************************************************************************************/
 /* This is an user defined function for get the adapter information.				*/
+/* The following is one of a sample in the Windows OS. Please rewrite if necessary.	*/
 /* The following is one of a sample in the Linux. Please rewrite if necessary.		*/
 /************************************************************************************/
 int user_get_adapter_info( USER_ADAPTER_INFO *pGetAdapterInfo )
 {
-#ifndef __linux__ 
+#ifdef _WIN32 
 	ULONG			ulOutBufLen;
 	ULONG			ulIpaddr, ulSubNetMask, ulDefGateway;
 	DWORD			dwRetVal;
@@ -1321,7 +1615,7 @@ int user_get_adapter_info( USER_ADAPTER_INFO *pGetAdapterInfo )
 
 	return USER_ERR_OK;
 
-#else
+#elif __linux__
 	struct ifconf			Ifc_Get;
 	struct ifreq			Ifreq_Size[MAX_INTERFACE];
 	struct sockaddr_in 		get_addr[MAX_INTERFACE];
@@ -1356,7 +1650,7 @@ int user_get_adapter_info( USER_ADAPTER_INFO *pGetAdapterInfo )
 	}
 
 	/* Calculate the number that came back from the kernel */
-	iNet_Number = Ifc_Get.ifc_len / sizeof( struct ifreq );
+	iNet_Number = Ifc_Get.ifc_len / ( int )sizeof( struct ifreq );
 	for(i=0;i<iNet_Number;i++)
 	{
 		/* Interface designation */
@@ -1393,7 +1687,8 @@ int user_get_adapter_info( USER_ADAPTER_INFO *pGetAdapterInfo )
 		sprintf( User_Adapter[i].MACAddr, "%02x:%02x:%02x:%02x:%02x:%02x", *pMAC_addr, *(pMAC_addr+1), *(pMAC_addr+2), *(pMAC_addr+3), *(pMAC_addr+4), *(pMAC_addr+5));
 
 		/* Get the default gateway from the system file */
-		if(( pFile = fopen( DIR_PROC_ROUTE , "r" )) == NULL )
+		pFile = fopen( DIR_PROC_ROUTE , "r" );
+		if( pFile == NULL )
 		{
 			printf("Not systemfile read");
 			close( sock_network );
