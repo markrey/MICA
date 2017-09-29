@@ -16,12 +16,12 @@ ID,DATA,COMMENT
 Slave,,
 ID,DATA,COMMENT
 1,3,Total number of slave
-2,192.168.10.52,Slave1 IP address
+2,192.168.10.222,Slave1 IP address
 3,1,Slave1 Number of occupied stations
 4,1,Slave1 Number of group
-5,192.168.10.54,Slave2 IP address
+5,192.168.10.223,Slave2 IP address
 6,1,Slave2 Number of occupied stations
 7,1,Slave2 Number of group
-8,192.168.10.56,Slave3 IP address
-9,2,Slave3 Number of occupied stations
-10,2,Slave3 Number of group
+8,192.168.10.99,Slave3 IP address
+9,1,Slave3 Number of occupied stations
+10,1,Slave3 Number of group

@@ -23,7 +23,6 @@
 #define	CCIEF_BASIC_PROTCOL_VERSION								2			/* Protocol Version */
 #define	CCIEF_BASIC_PORT_NUMBER_CYCLIC							61450		/* Port number of Cyclic */
 #define	CCIEF_BASIC_MAX_FRAME_SIZE								6000		/* Size of MAX Packet [byte] */
-#define	CCIEF_BASIC_OPERATE_SIZE								8			/* Size of OPERATE [byte] */
 #define	CCIEF_BASIC_RX_RY_SIZE									8			/* Size of RX/RY [byte] */
 #define	CCIEF_BASIC_RWW_RWR_SIZE								64			/* Size of RWw/RWr [byte] */
 #define	CCIEF_BASIC_MAX_SLAVE_NUMBER							64			/* Number of MAX slaves */

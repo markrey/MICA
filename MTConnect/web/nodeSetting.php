@@ -325,7 +325,7 @@ fclose($file);
 			<td><input type="text" size="5" name="textE09" value="<?php echo $highAlarm[9]; ?>"></td>
 		</tr>
 		<tr>
-			<td align="right"><input type="checkbox" name="check1[]" value="10" <?php print ($checkStatus[11]=="1") ? ' checked="checked"' : ''; ?>><?php echo $sensorName[10]; ?><input type="hidden" name="sensName10" value="<?php echo $sensorName[10]; ?>"></td>
+			<td align="right"><input type="checkbox" name="check1[]" value="10" <?php print ($checkStatus[10]=="1") ? ' checked="checked"' : ''; ?>><?php echo $sensorName[10]; ?><input type="hidden" name="sensName10" value="<?php echo $sensorName[10]; ?>"></td>
 			<td><input type="text" size="5" name="textA10" value="<?php echo $rangeZero[10]; ?>"></td>
 			<td><input type="text" size="5" name="textB10" value="<?php echo $rangeFull[10]; ?>"></td>
 			<td><input type="text" size="5" name="textC10" value="<?php echo $mistUnit[10]; ?>"></td>

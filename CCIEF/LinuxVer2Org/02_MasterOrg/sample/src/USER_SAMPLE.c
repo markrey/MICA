@@ -36,20 +36,12 @@
 #include <termios.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <mosquitto.h>
-#include <stdlib.h>
-#include <time.h>
-#include <sys/ipc.h>
-#include <sys/shm.h>
-
 
 /*[ Definition for sample program ]*/
 #define	MAX_INTERFACE						20
 #define	MAX_PATH							260
 #define	SOCKET_NOT_OPEN						0
 #define	DIR_PROC_ROUTE						"/proc/net/route"
-
-#define BUFSIZE 2048
 
 /*[ Structure of sample program ]*/
 typedef struct
@@ -77,14 +69,6 @@ typedef struct
 } t_RouteInfo;
 #endif
 
-#ifndef TRUE
-#define TRUE 1
-#endif
-
-#ifndef FALSE
-#define FALSE 0
-#endif
-
 typedef struct 
 {
 	uint8_t		aucMacAddress[6];			/* MAC Address */
@@ -100,13 +84,6 @@ static char							acMasterParameterFile[MAX_PATH] = "";
 static int							iApplicationState;
 static uint32_t						ulApplicationErrCode = 0xFFFFFFFF;
 
-/* Common Memory*/
-uint16_t *ptrSendData;
-uint16_t *ptrCommOpe;
-uint16_t *ptrCommRY;
-uint16_t *ptrCommRWw;
-
-
 /* Definition of function of sample program */
 static void user_callback_cyclic_link_scan_end( uint8_t ucGroupNumber );
 static int user_parameter_file_read( char *file_path, CCIEF_BASIC_MASTER_PARAMETER *pParameter );
@@ -120,102 +97,10 @@ static void user_application_error( uint32_t ulErrCode );
 static void user_application_event( int iEvent, uint32_t ulEventArg );
 static void user_start_cyclic( void );
 static void user_stop_cyclic( void );
-static void operateExecute( void );
-static void publish_master_info( void );
-static void publish_slave_info( void );
 static void user_show_slave_info( void );
 static void user_show_master_info( void );
 static void user_show_parameter( void );
 static int user_get_adapter_info( USER_ADAPTER_INFO *pGetAdapterInfo );
-
-//--------------------- 
-char topic[BUFSIZE];
-char pubBuf[BUFSIZE];
-int connect_desire = TRUE;
-int is_debug = FALSE;
-struct mosquitto *mosq = NULL;
-char *id            = "mqtt/pub";
-char *host          = "192.168.10.55";
-int   port          = 1883;
-char *cafile        = NULL;
-char *certfile      = NULL;
-char *keyfile       = NULL;
-int   keepalive     = 60;
-
-char aucMasterStateStr[][14] = { "INITAL", "WAITING", "PERSUASION", "LINK_SCAN", "LINK_SCAN_END" };
-
-/**
- * Brokerとの接続成功時に実行されるcallback関数
- */
-void on_connect(struct mosquitto *mosq, void *obj, int result)
-{
-//    printf("%s(%d)\n", __FUNCTION__, __LINE__);
-    mosquitto_publish(mosq, NULL, topic, strlen(pubBuf), pubBuf, 0, false);
-}
-
-/**
- * Brokerとの接続を切断した時に実行されるcallback関数
- */
-void on_disconnect(struct mosquitto *mosq, void *obj, int rc)
-{
-//   printf("%s(%d)\n", __FUNCTION__, __LINE__);
-}
-
-/**
- * BrokerにMQTTメッセージ送信後に実行されるcallback関数
- */
-static void on_publish(struct mosquitto *mosq, void *userdata, int mid)
-{
-//    printf("%s(%d)\n", __FUNCTION__, __LINE__);
-    connect_desire = FALSE;
-    mosquitto_disconnect(mosq);
-}
-
-int mqttPublish()
-{
-	int ret = 0;
-    bool  clean_session = true;
-	struct mosquitto *mosq = NULL;
-
-	mosquitto_lib_init();
-    mosq = mosquitto_new(id, clean_session, NULL);
-    if(!mosq){
-        fprintf(stderr, "Cannot create mosquitto object\n");
-        mosquitto_lib_cleanup();
-        return(EXIT_FAILURE);
-    }
-    mosquitto_connect_callback_set(mosq, on_connect);
-    mosquitto_disconnect_callback_set(mosq, on_disconnect);
-    mosquitto_publish_callback_set(mosq, on_publish);
-
-    if(cafile != NULL) {
-        ret = mosquitto_tls_set(mosq, cafile, NULL, certfile, keyfile, NULL);
-        if(ret != MOSQ_ERR_SUCCESS) {
-            printf("mosquitto_tls_set function is failed.\n");
-        }
-        mosquitto_tls_insecure_set(mosq, true);
-    }
-
-    if(mosquitto_connect_bind(mosq, host, port, keepalive, NULL)){
-        fprintf(stderr, "failed to connect broker.\n");
-        mosquitto_lib_cleanup();
-        return(EXIT_FAILURE);
-    }
-
-    do {
-        ret = mosquitto_loop_forever(mosq, -1, 1);
-    } while((ret == MOSQ_ERR_SUCCESS) && (connect_desire != FALSE));
-
-	mosquitto_destroy(mosq);
-    mosquitto_lib_cleanup();
-	return ret;
-}
-
-double get_dtime(void){
-  struct timeval tv;
-  gettimeofday(&tv, NULL);
-  return ((double)(tv.tv_sec) + (double)(tv.tv_usec) * 0.001 * 0.001);
-}
 
 /************************************************************************************/
 /* This is an user defined function for main function.								*/
@@ -224,58 +109,6 @@ double get_dtime(void){
 /************************************************************************************/
 void main( int argc, char *argv[] )
 {
-	int key;
-	int id;
-	double timeStart;
-	double timeCurrent;
-
-	system("cp /root/02_Master/shm /tmp");
-
-	key = ftok("/tmp/shm", 3); 
-	printf("key:%d",key);
-	if((id=shmget(key,512,IPC_CREAT|0666))==-1){
-        perror("shmget");
-        exit(-1);
-    }
-    printf("共有メモリID=%d\n",id);
-    if((ptrSendData=shmat(id,0,0))==-1){
-        perror("shmat");
-    }
-
-	key = ftok("/tmp/shm", 4); 
-	printf("key:%d",key);
-	if((id=shmget(key,((CCIEF_BASIC_RX_RY_SIZE / sizeof( uint16_t )) * CCIEF_BASIC_MAX_SLAVE_NUMBER),IPC_CREAT|0666))==-1){
-        perror("shmget");
-        exit(-1);
-    }
-    printf("共有メモリID=%d\n",id);
-    if((ptrCommRY=shmat(id,0,0))==-1){
-        perror("shmat");
-    }
-
-	key = ftok("/tmp/shm", 5); 
-	printf("key:%d",key);
-	if((id=shmget(key,((CCIEF_BASIC_RWW_RWR_SIZE / sizeof( uint16_t )) * CCIEF_BASIC_MAX_SLAVE_NUMBER),IPC_CREAT|0666))==-1){
-        perror("shmget");
-        exit(-1);
-    }
-    printf("共有メモリID=%d\n",id);
-    if((ptrCommRWw=shmat(id,0,0))==-1){
-        perror("shmat");
-    }
-
-	key = ftok("/tmp/shm", 6); 
-	printf("key:%d",key);
-	if((id=shmget(key,((CCIEF_BASIC_OPERATE_SIZE / sizeof( uint16_t ))),IPC_CREAT|0666))==-1){
-        perror("shmget");
-        exit(-1);
-    }
-    printf("共有メモリID=%d\n",id);
-    if((ptrCommOpe=shmat(id,0,0))==-1){
-        perror("shmat");
-    }
-
-
 	int iErrCode = 0;
 #ifdef _WIN32
 	WSADATA wsaData;
@@ -363,8 +196,6 @@ void main( int argc, char *argv[] )
 	/****************************************************************************/
 	/* Main loop of sample code.												*/
 	/****************************************************************************/
-	timeStart = get_dtime();
-	timeCurrent = get_dtime();
 	while (1)
 	{
 		/* CCIEF-BASIC Master */
@@ -383,15 +214,6 @@ void main( int argc, char *argv[] )
 		/* Timer */
 		timer_main();
 
-		operateExecute();
-
-		timeCurrent = get_dtime();
-		if((timeCurrent - timeStart)>1.0){
-			//user_show_slave_info();
-			publish_master_info();
-			publish_slave_info();
-			timeStart = get_dtime();
-		}
 		/* Check key input */
 		iErrCode = user_input_check();
 		if ( iErrCode == USER_EXIT )
@@ -431,13 +253,7 @@ void user_callback_cyclic_link_scan_end( uint8_t ucGroupNumber )
 {
 	CCIEF_BASIC_GROUP_INFO MasterInfo;
 	uint16_t *pusRWw, *pusRY,usSendData_RY,usSendData_RWw;
-	uint16_t tmpRWw[2048], tmpRY[256];
-	int iDataIndexB,iDataIndexW, iDataSize;
-	int	i, j, k, iStationNumber, iOccupiedStationNumberTotal;
-
-	memcpy(tmpRY,ptrCommRY,256);
-	memcpy(tmpRWw,ptrCommRWw,2048);
-
+	int	i, j, iOccupiedStationNumberTotal;
 
 	/* Please write here the operating of cyclic link scan end. */
 
@@ -459,60 +275,41 @@ void user_callback_cyclic_link_scan_end( uint8_t ucGroupNumber )
 		iOccupiedStationNumberTotal = 0;
 		for ( i = 0; i < UserMasterParameter.iTotalSlaveNumber; i ++ )
 		{
-			iDataIndexW = ( CCIEF_BASIC_RWW_RWR_SIZE / sizeof( uint16_t ) ) * iOccupiedStationNumberTotal;
-			iDataIndexB = ( CCIEF_BASIC_RX_RY_SIZE / sizeof( uint16_t ) ) * iOccupiedStationNumberTotal;
-
 			/* Check the group number */
 			if ( UserMasterParameter.Slave[i].ucGroupNumber == ucGroupNumber )
 			{
-				usSendData_RY = 0;
-				usSendData_RWw = 0;
-				/* Check the unit information */
-				if (( MasterInfo.usUnitInfo & CCIEF_BASIC_UNIT_INFO_APPLICATION_RUNNING ) == CCIEF_BASIC_UNIT_INFO_APPLICATION_RUNNING )
+				/* Starting the application */
+				/* Increase the sending data */
+				if ( ausSendData[i] >= 0x000F )
 				{
-					/* Starting the application */
-					/* Increase the sending data */
-					if ( ausSendData[i] >= 0x000F )
-					{
-						ausSendData[i] = 0;
-					}
-					else
-					{
-						ausSendData[i] ++;
-					}
-					//ausSendData[i] = *ptrSendData;
-					ausSendData[i] = *(ptrCommRY+10);
-					ausSendData[i] = ausSendData[i] & 0x000F;
-
-					usSendData_RY = ausSendData[i];
-					usSendData_RWw = ausSendData[i];
-					usSendData_RY |= ((uint16_t)ucGroupNumber << 12) | 0x0050 | ((uint16_t)(i+1) << 8);
-					usSendData_RWw |= ((uint16_t)ucGroupNumber << 12) | 0x00A0 | ((uint16_t)(i+1) << 8);
+					ausSendData[i] = 0;
 				}
 				else
 				{
-					/* Stopping the application */
-					/* Clear the sending data */
-					ausSendData[i] = 0;
+					ausSendData[i] ++;
 				}
+				usSendData_RY = ausSendData[i];
+				usSendData_RWw = ausSendData[i];
+				usSendData_RY |= ((uint16_t)ucGroupNumber << 12) | 0x0050 | ((uint16_t)( i + 1 ) << 8);
+				usSendData_RWw |= ((uint16_t)ucGroupNumber << 12) | 0x00A0 | ((uint16_t)( i + 1 ) << 8);
 
 				/* Getting the start pointer of RY */
-				pusRY = ccief_basic_master_get_pointer( CCIEF_BASIC_DEVICE_TYPE_RY ) + ( iOccupiedStationNumberTotal * ( CCIEF_BASIC_RX_RY_SIZE / sizeof( uint16_t )));
+				pusRY = ccief_basic_master_get_pointer( CCIEF_BASIC_DEVICE_TYPE_RY )
+					  + ( iOccupiedStationNumberTotal * ( CCIEF_BASIC_RX_RY_SIZE / sizeof( uint16_t )));
 				/* Getting the start pointer of RWw */
-				pusRWw = ccief_basic_master_get_pointer( CCIEF_BASIC_DEVICE_TYPE_RWW ) + ( iOccupiedStationNumberTotal * ( CCIEF_BASIC_RWW_RWR_SIZE / sizeof( uint16_t )));
+				pusRWw = ccief_basic_master_get_pointer( CCIEF_BASIC_DEVICE_TYPE_RWW )
+					   + ( iOccupiedStationNumberTotal * ( CCIEF_BASIC_RWW_RWR_SIZE / sizeof( uint16_t )));
 
 				/* Setting the sending RY data */
 				for ( j = 0; j < (int)( UserMasterParameter.Slave[i].usOccupiedStationNumber * ( CCIEF_BASIC_RX_RY_SIZE / sizeof( uint16_t ))); j ++ )
 				{
-					//*pusRY = usSendData_RY;
-					*pusRY = tmpRY[j+iDataIndexB];
+					*pusRY = usSendData_RY;
 					pusRY ++;
 				}
 				/* Setting the sending RWw data */
 				for ( j = 0; j < (int)( UserMasterParameter.Slave[i].usOccupiedStationNumber * ( CCIEF_BASIC_RWW_RWR_SIZE / sizeof( uint16_t ))); j ++ )
 				{
-					//*pusRWw = usSendData_RWw;
-					*pusRWw = tmpRWw[j+iDataIndexW];
+					*pusRWw = usSendData_RWw;
 					pusRWw ++;
 				}
 			}
@@ -833,7 +630,6 @@ int user_input_check( void )
 					break;
 				case 'S':	/* Show information of the slave */
 					user_show_slave_info();
-					//publish_slave_info();
 					break;
 				case 'M':	/* Show information of the master */
 					user_show_master_info();
@@ -1071,235 +867,6 @@ void user_stop_cyclic( void )
 	return;
 }
 
-void operateExecute( void ){
-	int idx = 0;
-	for(idx=0;idx<CCIEF_BASIC_OPERATE_SIZE;idx++){
-		if(*(ptrCommOpe + idx) >0 )
-		{
-			printf("prtCommOpe[%d]:%d ",idx,*(ptrCommOpe+idx));
-			*(ptrCommOpe + idx) = 0;
-			switch ( idx )
-			{
-				case 0:	/* Start cyclic of the slave */
-					printf("Start cyclic of the slave \n");
-					user_start_cyclic();
-					break;
-				case 1:	/* Stop cyclic of the slave */
-					printf("Stop cyclic of the slave \n");
-					user_stop_cyclic();
-					break;
-				case 2:	/* Start the application */
-					printf("Start the application \n");
-					user_application_event( USER_APPLICATION_EVENT_START, 0 );
-					break;
-				case 3:	/* Stop the application */
-					printf("Stop the application \n");
-					user_application_event( USER_APPLICATION_EVENT_STOP, 0 );
-					break;
-			}
-		}
-	}
-}
-
-	
-void publish_master_info( void )
-{
-	CCIEF_BASIC_MASTER_PARAMETER *pParameter;
-	static CCIEF_BASIC_GROUP_INFO MasterInfo;
-	static CCIEF_BASIC_SLAVE_INFO SlaveInfo;
-	TIMER_TIME_DATA TimeData;
-	int i, j, iStationNumber;
-	int grpIdx = 0;
-	time_t now;
-	struct tm *ltm;
-
-	pParameter = &UserMasterParameter;
-
-	/* Showing the state of all the groups */
-	iStationNumber = 0;
-	sprintf(pubBuf, "{" );
-	for ( i = 0; i < pParameter->iTotalGroupNumber; i ++ )
-	{
-		/* Getting the master group information */
-		ccief_basic_master_get_group_info( i, &MasterInfo );
-		if ( i == 0 )
-		{
-			sprintf(pubBuf, "%s\"MasterID\":\"%08lX\",",pubBuf, MasterInfo.ulId );
-			sprintf(pubBuf, "%s\"ProtocolVersion\":\"%04X\",",pubBuf, MasterInfo.usProtocolVersion );
-			sprintf(pubBuf, "%s\"UnitInfo\":\"%04X\",",pubBuf, MasterInfo.usUnitInfo );
-			sprintf(pubBuf, "%s\"ParameterID\":\"%04X\",\"GroupInfo\":[",pubBuf, MasterInfo.usParameterId );
-
-		} else {
-			sprintf(pubBuf, "%s,",pubBuf);
-		}
-		sprintf(pubBuf, "%s{\"GroupNo\":\"%d\",",pubBuf, MasterInfo.ucGroupNumber );
-		sprintf(pubBuf, "%s\"TotalSlaveNumber\":\"%d\",",pubBuf, MasterInfo.iTotalSlaveNumber );
-		sprintf(pubBuf, "%s\"TotalOccupiedStationNumber\":\"%d\",",pubBuf, MasterInfo.usTotalOccupiedStationNumber );
-		sprintf(pubBuf, "%s\"State\":\"%d\",",pubBuf, MasterInfo.iState, &aucMasterStateStr[MasterInfo.iState] );
-		timer_analyze_time_data( MasterInfo.llTimeData, &TimeData );
-		sprintf(pubBuf, "%s\"TimeData\":\"%02d-%02d-%02d %02d:%02d:%02d.%03d\",",pubBuf, TimeData.usYear, TimeData.usMonth,TimeData.usDay, TimeData.usHour, TimeData.usMinute, TimeData.usSecond, TimeData.usMilliseconds );
-		sprintf(pubBuf, "%s\"FrameSequenceNumber\":\"%04X\",",pubBuf, MasterInfo.usFrameSequenceNumber );
-		sprintf(pubBuf, "%s\"ScanTimeCurrent\":\"%01.3f\",",pubBuf, ((float)MasterInfo.llLinkScanTimeCurrent / 1000) );
-		sprintf(pubBuf, "%s\"ScanTimeMinimum\":\"%01.3f\",",pubBuf, ((float)MasterInfo.llLinkScanTimeMinimum / 1000) );
-		sprintf(pubBuf, "%s\"ScanTimeMaximum\":\"%01.3f\",",pubBuf, ((float)MasterInfo.llLinkScanTimeMaximum / 1000) );
-		grpIdx = 0;
-		if(pParameter->iTotalSlaveNumber>0){
-			sprintf(pubBuf, "%s\"SlaveList\":[",pubBuf);
-			for ( j = 0; j < pParameter->iTotalSlaveNumber; j ++ )
-			{
-				/* Getting the slave state */
-				ccief_basic_master_get_slave_info( j, &SlaveInfo );
-				/* Check the group number */
-				if ( MasterInfo.ucGroupNumber == SlaveInfo.ucGroupNumber )
-				{
-					/* Check the cyclic state */
-					if( grpIdx > 0){
-						sprintf(pubBuf, "%s,",pubBuf);
-					}
-					sprintf(pubBuf, "%s{\"SlaveNo\":%-2d,",pubBuf,( j + 1 ));
-					sprintf(pubBuf, "%s\"SlaveID\":\"0x%-08lX\",",pubBuf,SlaveInfo.ulId);
-					if ( SlaveInfo.iCyclicState == CCIEF_BASIC_CYCLIC_STATE_ON )
-					{
-						sprintf(pubBuf, "%s\"CS\":\"ON\",",pubBuf);
-					}
-					else
-					{
-						sprintf(pubBuf, "%s\"CS\":\"OFF\",",pubBuf);
-					}
-					sprintf(pubBuf, "%s\"State\":%d}",pubBuf,SlaveInfo.iState);
-					grpIdx++;
-				}
-			}
-			sprintf(pubBuf, "%s]",pubBuf);
-		}
-		sprintf(pubBuf, "%s}",pubBuf);
-
-	}
-
-	time( &now );
-	ltm = localtime( &now );
-	sprintf(pubBuf, "%s],\"datetime\":\"%04d/%02d/%02d %02d:%02d:%02d\"}" ,pubBuf,ltm->tm_year + 1900, ltm->tm_mon + 1, ltm->tm_mday, ltm->tm_hour, ltm->tm_min, ltm->tm_sec );
-	sprintf(topic,"ccief/master");
-	mqttPublish();
-
-	return;
-}
-
-/************************************************************************************/
-/* This is an user defined function for showing information of the slave.			*/
-/************************************************************************************/
-void publish_slave_info( void )
-{
-	CCIEF_BASIC_MASTER_PARAMETER *pParameter;
-	CCIEF_BASIC_SLAVE_INFO SlaveInfo;
-	uint16_t *pusRX, *pusRY, *pusRWw, *pusRWr;
-	uint16_t *pusData;
-	uint16_t usOccupiedStationNumber;
-	int iDataIndex, iDataSize;
-	int i, j, k, iStationNumber;
-	time_t now;
-	struct tm *ltm;
-
-	pParameter = &UserMasterParameter;
-	/* Getting the start pointer of RX */
-	pusRX = ccief_basic_master_get_pointer( CCIEF_BASIC_DEVICE_TYPE_RX );
-	/* Getting the start pointer of RY */
-	pusRY = ccief_basic_master_get_pointer( CCIEF_BASIC_DEVICE_TYPE_RY );
-	/* Getting the start pointer of RWw */
-	pusRWw = ccief_basic_master_get_pointer( CCIEF_BASIC_DEVICE_TYPE_RWW );
-	/* Getting the start pointer of RWr */
-	pusRWr = ccief_basic_master_get_pointer( CCIEF_BASIC_DEVICE_TYPE_RWR );
-
-	/* Showing the cyclic data */
-	iStationNumber = 0;
-	for ( i = 0; i < pParameter->iTotalSlaveNumber; i ++ )
-	{
-		/* Getting the slave state */
-		ccief_basic_master_get_slave_info( i, &SlaveInfo );
-		usOccupiedStationNumber = pParameter->Slave[i].usOccupiedStationNumber;
-		sprintf(pubBuf, "{\"SlaveNo\":%d,", i + 1 );
-		sprintf(pubBuf, "%s\"SlaveID\":\"%08lX\",",pubBuf, SlaveInfo.ulId );
-		sprintf(pubBuf, "%s\"OccupiedStationNumber\":%d,",pubBuf, SlaveInfo.usOccupiedStationNumber );
-		if ( SlaveInfo.ucGroupNumber != 0 )
-		{
-			sprintf(pubBuf, "%s\"GroupNo\":%d,",pubBuf, SlaveInfo.ucGroupNumber );
-		}
-		sprintf(pubBuf, "%s\"State\":%d,",pubBuf, SlaveInfo.iState);
-		sprintf(pubBuf, "%s\"ProtocolVersion\":\"%04X\",",pubBuf, SlaveInfo.usProtocolVersion );
-		sprintf(pubBuf, "%s\"EndCode\":\"%04X\",",pubBuf, SlaveInfo.usEndCode );
-		sprintf(pubBuf, "%s\"SlaveNotifyInformation\":{" ,pubBuf);
-		sprintf(pubBuf, "%s\"VenderCode\":\"%04X\",",pubBuf, SlaveInfo.NotifyInfo.usVenderCode );
-		sprintf(pubBuf, "%s\"ModelCode\":\"%08X\",",pubBuf, SlaveInfo.NotifyInfo.ulModelCode );
-		sprintf(pubBuf, "%s\"MachineVersion\":\"%04X\",",pubBuf, SlaveInfo.NotifyInfo.usMachineVersion );
-		sprintf(pubBuf, "%s\"UnitInfo\":\"%04X\",",pubBuf, SlaveInfo.NotifyInfo.usUnitInfo );
-		sprintf(pubBuf, "%s\"ErrorCode\":\"%04X\",",pubBuf, SlaveInfo.NotifyInfo.usErrCode );
-		sprintf(pubBuf, "%s\"UnitData\":\"%08X\",",pubBuf, SlaveInfo.NotifyInfo.ulUnitData );
-		sprintf(pubBuf, "%s\"FrameSequenceNumber\":\"%04X\"",pubBuf, SlaveInfo.usFrameSequenceNumber );
-		sprintf(pubBuf, "%s}," ,pubBuf);
-		iDataIndex = ( CCIEF_BASIC_RX_RY_SIZE / sizeof( uint16_t ) ) * iStationNumber;
-		iDataSize = ( CCIEF_BASIC_RX_RY_SIZE / sizeof( uint16_t ) ) * usOccupiedStationNumber;
-		sprintf(pubBuf, "%s\"RX\":[" ,pubBuf);
-		for ( j = 0; j < iDataSize; j ++ )
-		{
-			pusData = pusRX + iDataIndex + j;
-			if(!(j==0)) {
-				sprintf(pubBuf, "%s,",pubBuf);
-			}
-			sprintf(pubBuf, "%s \"%04X\"", pubBuf,*pusData );
-		}
-		sprintf(pubBuf, "%s]," ,pubBuf);
-		sprintf(pubBuf, "%s\"RY\":[" ,pubBuf);
-		for ( j = 0; j < iDataSize; j ++ )
-		{
-			pusData = pusRY + iDataIndex + j;
-			if(!(j==0)) {
-				sprintf(pubBuf, "%s,",pubBuf);
-			}
-			sprintf(pubBuf, "%s \"%04X\"", pubBuf,*pusData );
-		}
-		sprintf(pubBuf, "%s]," ,pubBuf);
-		iDataIndex = ( CCIEF_BASIC_RWW_RWR_SIZE / sizeof( uint16_t ) ) * iStationNumber;
-		iDataSize = ( CCIEF_BASIC_RWW_RWR_SIZE / sizeof( uint16_t ) ) * usOccupiedStationNumber;
-		sprintf(pubBuf, "%s\"RWw\":[" ,pubBuf);
-		for ( j = 0; j < ( iDataSize / 8 ); j ++ )
-		{
-			pusData = pusRWw + iDataIndex + j * 8;
-			for ( k = 0; k < 8; k ++ ) {
-				if(!((j==0) && (k==0))) {
-					sprintf(pubBuf, "%s,",pubBuf);
-				}
-				sprintf(pubBuf, "%s \"%04X\"",pubBuf, *pusData );
-				pusData ++;
-			}
-		}
-		sprintf(pubBuf, "%s]," ,pubBuf);
-		sprintf(pubBuf, "%s\"RWr\":[" ,pubBuf);
-		for ( j = 0; j < ( iDataSize / 8 ); j ++ )
-		{
-			pusData = pusRWr + iDataIndex + j * 8;
-			for ( k = 0; k < 8; k ++ )
-			{
-				if(!((j==0) && (k==0))) {
-					sprintf(pubBuf, "%s,",pubBuf);
-				}
-				sprintf(pubBuf, "%s \"%04X\"",pubBuf, *pusData );
-				pusData ++;
-			}
-		}
-		time( &now );
-		ltm = localtime( &now );
-		sprintf(pubBuf, "%s],\"datetime\":\"%04d/%02d/%02d %02d:%02d:%02d\"}" ,pubBuf,ltm->tm_year + 1900, ltm->tm_mon + 1, ltm->tm_mday, ltm->tm_hour, ltm->tm_min, ltm->tm_sec );
-
-		sprintf(topic,"ccief/slave%d",iStationNumber+1);
-		//printf("pubBuf[%s]\n",pubBuf);
-		mqttPublish();
-
-		iStationNumber += usOccupiedStationNumber;
-	}
-
-	return;
-}
-
 /************************************************************************************/
 /* This is an user defined function for showing information of the slave.			*/
 /************************************************************************************/
@@ -1425,6 +992,7 @@ void user_show_slave_info( void )
 /************************************************************************************/
 /* This is an user defined function for showing information of the master.			*/
 /************************************************************************************/
+char aucMasterStateStr[][14] = { "INITAL", "WAITING", "PERSUASION", "LINK_SCAN", "LINK_SCAN_END" };
 void user_show_master_info( void )
 {
 	CCIEF_BASIC_MASTER_PARAMETER *pParameter;
