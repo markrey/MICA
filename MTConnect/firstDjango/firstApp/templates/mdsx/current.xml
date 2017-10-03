@@ -3,11 +3,11 @@
   <Header creationTime="{{ createTime }}" sender="micamtcagent" instanceId="1490681234" version="1.3.0.9"  bufferSize="131072" nextSequence="3008130624" firstSequence="3007999552" lastSequence="3008130623"/>
   <Streams>
     <DeviceStream name="MD-SX" uuid="MDSX0000">
-      <ComponentStream component="Device" name="nodeA1" componentId="A1">
+      <ComponentStream component="Device" name="node{{ ID01 }}" componentId="{{ ID01 }}">
         <Samples>
-          <Temperature dataItemId="temp" timestamp="{{ createTime }}" name="temp" sequence="24">26</Temperature>
-          <OilMistLevel dataItemId="mistLv" timestamp="{{ createTime }}" name="mistLv" sequence="11">1.378</OilMistLevel>
-          <Concentration dataItemId="oilConcentration" timestamp="{{ createTime }}" name="oilConcentration" sequence="11">1.378</Concentration>
+          <Temperature dataItemId="temp" timestamp="{{ createTime }}" name="temp" sequence="24">{{ temp01 }}</Temperature>
+          <OilMistLevel dataItemId="mistLv" timestamp="{{ createTime }}" name="mistLv" sequence="11">{{ mistLv01 }}</OilMistLevel>
+          <Concentration dataItemId="oilConcentration" timestamp="{{ createTime }}" name="oilConcentration" sequence="11">{{ mistLv01 }}</Concentration>
         </Samples>
         <Events>
           <Message dataItemId="message" timestamp="{{ createTime }}" name="message" sequence="9946658">running message</Message>
@@ -16,6 +16,171 @@
           <Normal dataItemId="mistLevelHigh" timestamp="{{ createTime }}" name="mistLevelHigh" sequence="10742742" type="DATA_RANGE"/>
           <Normal dataItemId="systemError" timestamp="{{ createTime }}" name="systemError" sequence="10744771" type="SYSTEM"/>
           <Normal dataItemId="nodeCommCond" timestamp="{{ createTime }}" name="nodeCommCond" sequence="3008087517" type="HARDWARE"/>
+        </Condition>
+      </ComponentStream>
+      <ComponentStream component="Device" name="node{{ ID02 }}" componentId="{{ ID02 }}">
+        <Samples>
+          <Temperature dataItemId="temp" timestamp="{{ createTime }}" name="temp" sequence="24">{{ temp02 }}</Temperature>
+          <OilMistLevel dataItemId="mistLv" timestamp="{{ createTime }}" name="mistLv" sequence="11">{{ mistLv02 }}</OilMistLevel>
+          <Concentration dataItemId="oilConcentration" timestamp="{{ createTime }}" name="oilConcentration" sequence="11">{{ mistLv02 }}</Concentration>
+        </Samples>
+        <Events>
+        </Events>
+        <Condition>
+        </Condition>
+      </ComponentStream>
+      <ComponentStream component="Device" name="node{{ ID03 }}" componentId="{{ ID03 }}">
+        <Samples>
+          <Temperature dataItemId="temp" timestamp="{{ createTime }}" name="temp" sequence="24">{{ temp03 }}</Temperature>
+          <OilMistLevel dataItemId="mistLv" timestamp="{{ createTime }}" name="mistLv" sequence="11">{{ mistLv03 }}</OilMistLevel>
+          <Concentration dataItemId="oilConcentration" timestamp="{{ createTime }}" name="oilConcentration" sequence="11">{{ mistLv03 }}</Concentration>
+        </Samples>
+        <Events>
+        </Events>
+        <Condition>
+        </Condition>
+      </ComponentStream>
+      <ComponentStream component="Device" name="node{{ ID04 }}" componentId="{{ ID04 }}">
+        <Samples>
+          <Temperature dataItemId="temp" timestamp="{{ createTime }}" name="temp" sequence="24">{{ temp04 }}</Temperature>
+          <OilMistLevel dataItemId="mistLv" timestamp="{{ createTime }}" name="mistLv" sequence="11">{{ mistLv04 }}</OilMistLevel>
+          <Concentration dataItemId="oilConcentration" timestamp="{{ createTime }}" name="oilConcentration" sequence="11">{{ mistLv04 }}</Concentration>
+        </Samples>
+        <Events>
+        </Events>
+        <Condition>
+        </Condition>
+      </ComponentStream>
+      <ComponentStream component="Device" name="node{{ ID05 }}" componentId="{{ ID05 }}">
+        <Samples>
+          <Temperature dataItemId="temp" timestamp="{{ createTime }}" name="temp" sequence="24">{{ temp05 }}</Temperature>
+          <OilMistLevel dataItemId="mistLv" timestamp="{{ createTime }}" name="mistLv" sequence="11">{{ mistLv05 }}</OilMistLevel>
+          <Concentration dataItemId="oilConcentration" timestamp="{{ createTime }}" name="oilConcentration" sequence="11">{{ mistLv05 }}</Concentration>
+        </Samples>
+        <Events>
+        </Events>
+        <Condition>
+        </Condition>
+      </ComponentStream>
+      <ComponentStream component="Device" name="node{{ ID06 }}" componentId="{{ ID06 }}">
+        <Samples>
+          <Temperature dataItemId="temp" timestamp="{{ createTime }}" name="temp" sequence="24">{{ temp06 }}</Temperature>
+          <OilMistLevel dataItemId="mistLv" timestamp="{{ createTime }}" name="mistLv" sequence="11">{{ mistLv06 }}</OilMistLevel>
+          <Concentration dataItemId="oilConcentration" timestamp="{{ createTime }}" name="oilConcentration" sequence="11">{{ mistLv06 }}</Concentration>
+        </Samples>
+        <Events>
+        </Events>
+        <Condition>
+        </Condition>
+      </ComponentStream>
+      <ComponentStream component="Device" name="node{{ ID07 }}" componentId="{{ ID07 }}">
+        <Samples>
+          <Temperature dataItemId="temp" timestamp="{{ createTime }}" name="temp" sequence="24">{{ temp07 }}</Temperature>
+          <OilMistLevel dataItemId="mistLv" timestamp="{{ createTime }}" name="mistLv" sequence="11">{{ mistLv07 }}</OilMistLevel>
+          <Concentration dataItemId="oilConcentration" timestamp="{{ createTime }}" name="oilConcentration" sequence="11">{{ mistLv07 }}</Concentration>
+        </Samples>
+        <Events>
+        </Events>
+        <Condition>
+        </Condition>
+      </ComponentStream>
+      <ComponentStream component="Device" name="node{{ ID08 }}" componentId="{{ ID08 }}">
+        <Samples>
+          <Temperature dataItemId="temp" timestamp="{{ createTime }}" name="temp" sequence="24">{{ temp08 }}</Temperature>
+          <OilMistLevel dataItemId="mistLv" timestamp="{{ createTime }}" name="mistLv" sequence="11">{{ mistLv08 }}</OilMistLevel>
+          <Concentration dataItemId="oilConcentration" timestamp="{{ createTime }}" name="oilConcentration" sequence="11">{{ mistLv08 }}</Concentration>
+        </Samples>
+        <Events>
+        </Events>
+        <Condition>
+        </Condition>
+      </ComponentStream>
+      <ComponentStream component="Device" name="node{{ ID09 }}" componentId="{{ ID09 }}">
+        <Samples>
+          <Temperature dataItemId="temp" timestamp="{{ createTime }}" name="temp" sequence="24">{{ temp09 }}</Temperature>
+          <OilMistLevel dataItemId="mistLv" timestamp="{{ createTime }}" name="mistLv" sequence="11">{{ mistLv09 }}</OilMistLevel>
+          <Concentration dataItemId="oilConcentration" timestamp="{{ createTime }}" name="oilConcentration" sequence="11">{{ mistLv09 }}</Concentration>
+        </Samples>
+        <Events>
+        </Events>
+        <Condition>
+        </Condition>
+      </ComponentStream>
+      <ComponentStream component="Device" name="node{{ ID10 }}" componentId="{{ ID10 }}">
+        <Samples>
+          <Temperature dataItemId="temp" timestamp="{{ createTime }}" name="temp" sequence="24">{{ temp10 }}</Temperature>
+          <OilMistLevel dataItemId="mistLv" timestamp="{{ createTime }}" name="mistLv" sequence="11">{{ mistLv10 }}</OilMistLevel>
+          <Concentration dataItemId="oilConcentration" timestamp="{{ createTime }}" name="oilConcentration" sequence="11">{{ mistLv10 }}</Concentration>
+        </Samples>
+        <Events>
+        </Events>
+        <Condition>
+        </Condition>
+      </ComponentStream>
+      <ComponentStream component="Device" name="node{{ ID11 }}" componentId="{{ ID11 }}">
+        <Samples>
+          <Temperature dataItemId="temp" timestamp="{{ createTime }}" name="temp" sequence="24">{{ temp11 }}</Temperature>
+          <OilMistLevel dataItemId="mistLv" timestamp="{{ createTime }}" name="mistLv" sequence="11">{{ mistLv11 }}</OilMistLevel>
+          <Concentration dataItemId="oilConcentration" timestamp="{{ createTime }}" name="oilConcentration" sequence="11">{{ mistLv11 }}</Concentration>
+        </Samples>
+        <Events>
+        </Events>
+        <Condition>
+        </Condition>
+      </ComponentStream>
+      <ComponentStream component="Device" name="node{{ ID12 }}" componentId="{{ ID12 }}">
+        <Samples>
+          <Temperature dataItemId="temp" timestamp="{{ createTime }}" name="temp" sequence="24">{{ temp12 }}</Temperature>
+          <OilMistLevel dataItemId="mistLv" timestamp="{{ createTime }}" name="mistLv" sequence="11">{{ mistLv12 }}</OilMistLevel>
+          <Concentration dataItemId="oilConcentration" timestamp="{{ createTime }}" name="oilConcentration" sequence="11">{{ mistLv12 }}</Concentration>
+        </Samples>
+        <Events>
+        </Events>
+        <Condition>
+        </Condition>
+      </ComponentStream>
+      <ComponentStream component="Device" name="node{{ ID13 }}" componentId="{{ ID13 }}">
+        <Samples>
+          <Temperature dataItemId="temp" timestamp="{{ createTime }}" name="temp" sequence="24">{{ temp13 }}</Temperature>
+          <OilMistLevel dataItemId="mistLv" timestamp="{{ createTime }}" name="mistLv" sequence="11">{{ mistLv13 }}</OilMistLevel>
+          <Concentration dataItemId="oilConcentration" timestamp="{{ createTime }}" name="oilConcentration" sequence="11">{{ mistLv13 }}</Concentration>
+        </Samples>
+        <Events>
+        </Events>
+        <Condition>
+        </Condition>
+      </ComponentStream>
+      <ComponentStream component="Device" name="node{{ ID14 }}" componentId="{{ ID14 }}">
+        <Samples>
+          <Temperature dataItemId="temp" timestamp="{{ createTime }}" name="temp" sequence="24">{{ temp14 }}</Temperature>
+          <OilMistLevel dataItemId="mistLv" timestamp="{{ createTime }}" name="mistLv" sequence="11">{{ mistLv14 }}</OilMistLevel>
+          <Concentration dataItemId="oilConcentration" timestamp="{{ createTime }}" name="oilConcentration" sequence="11">{{ mistLv14 }}</Concentration>
+        </Samples>
+        <Events>
+        </Events>
+        <Condition>
+        </Condition>
+      </ComponentStream>
+      <ComponentStream component="Device" name="node{{ ID15 }}" componentId="{{ ID15 }}">
+        <Samples>
+          <Temperature dataItemId="temp" timestamp="{{ createTime }}" name="temp" sequence="24">{{ temp15 }}</Temperature>
+          <OilMistLevel dataItemId="mistLv" timestamp="{{ createTime }}" name="mistLv" sequence="11">{{ mistLv15 }}</OilMistLevel>
+          <Concentration dataItemId="oilConcentration" timestamp="{{ createTime }}" name="oilConcentration" sequence="11">{{ mistLv15 }}</Concentration>
+        </Samples>
+        <Events>
+        </Events>
+        <Condition>
+        </Condition>
+      </ComponentStream>
+      <ComponentStream component="Device" name="node{{ ID16 }}" componentId="{{ ID16 }}">
+        <Samples>
+          <Temperature dataItemId="temp" timestamp="{{ createTime }}" name="temp" sequence="24">{{ temp16 }}</Temperature>
+          <OilMistLevel dataItemId="mistLv" timestamp="{{ createTime }}" name="mistLv" sequence="11">{{ mistLv16 }}</OilMistLevel>
+          <Concentration dataItemId="oilConcentration" timestamp="{{ createTime }}" name="oilConcentration" sequence="11">{{ mistLv16 }}</Concentration>
+        </Samples>
+        <Events>
+        </Events>
+        <Condition>
         </Condition>
       </ComponentStream>
     </DeviceStream>

@@ -5,9 +5,9 @@
     <Device id="d1" name="MD-SX" sampleInterval="10" uuid="000">
       <Description serialNumber="M7ZLM87010Z">MD-SX</Description>
       <DataItems>
-        <DataItem category="SAMPLES" id="temp" type="TEMPERATURE"/>
-        <DataItem category="SAMPLES" id="mistLv" type="OILMISTLEVEL"/>
-        <DataItem category="SAMPLES" id="oilConcentration" type="CONCENTRATION"/>
+        <DataItem category="SAMPLES" id="temp" type="TEMPERATURE" nativeUnits="DEGREE" />
+        <DataItem category="SAMPLES" id="mistLv" type="OILMISTLEVEL" nativeUnits="{{ mUnit01 }}" />
+        <DataItem category="SAMPLES" id="oilConcentration" type="CONCENTRATION" nativeUnits="{{ mUnit01 }}" />
         <DataItem category="EVENT" id="message" name="message" type="Message"/>
         <DataItem category="CONDITION" id="mistLevelHigh" type="DATA_RANGE"/>
         <DataItem category="CONDITION" id="systemError" type="SYSTEM"/>
